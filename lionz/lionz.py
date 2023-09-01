@@ -58,4 +58,67 @@ __version__ = "0.1"
 # Imports for the module
 
 
+import argparse
+import glob
+import logging
+import os
+import time
+import emoji
+from datetime import datetime
+import colorama
 
+from lionz import display
+from lionz import constants
+from lionz.resources import AVAILABLE_MODELS
+
+logging.basicConfig(format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s', level=logging.INFO,
+                    filename=datetime.now().strftime('lionz-v.0.1.0.%H-%M-%d-%m-%Y.log'),
+                    filemode='w')
+
+# Main function for the module
+def main():
+    colorama.init()
+
+    # Argument parser
+    parser = argparse.ArgumentParser(
+    description=display.get_usage_message(),
+    formatter_class=argparse.RawTextHelpFormatter,  # To retain the custom formatting
+    add_help=False  # We'll add our own help option later
+    )
+
+    # Main directory containing subject folders
+    parser.add_argument(
+        "-d", "--main_directory", 
+        type=str, 
+        required=True,
+        metavar="<MAIN_DIRECTORY>",
+        help="Specify the main directory containing subject folders."
+    )
+    
+    # Name of the model to use for segmentation
+    model_help_text = "Choose the model for segmentation from the following:\n" + "\n".join(AVAILABLE_MODELS)
+    parser.add_argument(
+        "-m", "--model_name", 
+        type=str, 
+        choices=AVAILABLE_MODELS, 
+        required=True,
+        metavar="<MODEL_NAME>",
+        help=model_help_text
+    )
+    
+    # Custom help option
+    parser.add_argument(
+        "-h", "--help",
+        action="help",
+        default=argparse.SUPPRESS,
+        help="Show this help message and exit."
+    )
+
+
+    args = parser.parse_args()
+
+    parent_folder = os.path.abspath(args.main_directory)
+    model_name = args.model_name
+
+    display.logo()
+    display.citation()
