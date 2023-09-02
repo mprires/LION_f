@@ -13,7 +13,33 @@ LIONZ stands for Lesion segmentatION, a sophisticated solution for lesion segmen
 .. versionadded:: 0.1.0
 """
 
+import torch
+from lionz import constants 
+
+
+# List of available models in the LIONZ application
 AVAILABLE_MODELS = ["fdg_lionz",
                     "psma_lionz"]
 
+# Dictionary of expected modalities for each model in the LIONZ application
+EXPECTED_MODALITIES = {"fdg_lionz": ["PT", "CT"],
+                          "psma_lionz": ["PT"]}
 
+
+def check_cuda() -> str:
+    """
+    This function checks if CUDA is available on the device and prints the device name and number of CUDA devices
+    available on the device.
+
+    Returns:
+        str: The device to run predictions on, either "cpu" or "cuda".
+    """
+    if not torch.cuda.is_available():
+        print(
+            f"{constants.ANSI_ORANGE}CUDA not available on this device. Predictions will be run on CPU.{constants.ANSI_RESET}")
+        return "cpu"
+    else:
+        device_count = torch.cuda.device_count()
+        print(
+            f"{constants.ANSI_GREEN} CUDA is available on this device with {device_count} GPU(s). Predictions will be run on GPU.{constants.ANSI_RESET}")
+        return "cuda"

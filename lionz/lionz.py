@@ -69,11 +69,13 @@ import colorama
 
 from lionz import display
 from lionz import constants
-from lionz.resources import AVAILABLE_MODELS
+from lionz.resources import AVAILABLE_MODELS, check_cuda
+from lionz import input_validation
 
 logging.basicConfig(format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s', level=logging.INFO,
                     filename=datetime.now().strftime('lionz-v.0.1.0.%H-%M-%d-%m-%Y.log'),
                     filemode='w')
+
 
 # Main function for the module
 def main():
@@ -114,11 +116,38 @@ def main():
         help="Show this help message and exit."
     )
 
-
+    # Parse the arguments
     args = parser.parse_args()
 
+    # Get the main directory and model name
     parent_folder = os.path.abspath(args.main_directory)
     model_name = args.model_name
 
+    # Display messages
     display.logo()
     display.citation()
+
+    logging.info('----------------------------------------------------------------------------------------------------')
+    logging.info('                                     STARTING LIONZ-v.0.1.0                                         ')
+    logging.info('----------------------------------------------------------------------------------------------------')
+
+    # ----------------------------------
+    # INPUT VALIDATION AND PREPARATION
+    # ----------------------------------
+    
+    logging.info(' ')
+    logging.info('- Main directory: ' + parent_folder)
+    logging.info('- Model name: ' + model_name)
+    logging.info(' ')
+    print(' ')
+    print(f'{constants.ANSI_VIOLET} {emoji.emojize(":memo:")} NOTE:{constants.ANSI_RESET}')
+    print(' ')
+    modalities = display.expectations(model_name)
+    accelerator = check_cuda()
+    inputs_valid = input_validation.validate_inputs(parent_folder, model_name)
+    if not inputs_valid:
+        exit(1)
+    else:
+        logging.info(f"Input validation successful.")
+
+        
