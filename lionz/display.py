@@ -29,7 +29,7 @@ import emoji
 import pyfiglet
 
 from lionz import constants
-from lionz import resources
+from lionz.resources import AVAILABLE_MODELS, EXPECTED_MODALITIES
 
 
 def get_usage_message():
@@ -80,3 +80,42 @@ def citation():
         " Shiyam Sundar LK, Gutschmayer S, pires M, et al. LIONZ: Advancing lesion segmentation "
         "in medical imaging datasets. J Nucl Med. Forthcoming 2023.")
     print(" Copyright 2023, Quantitative Imaging and Medical Physics Team, Medical University of Vienna")
+
+
+
+def expectations(model_name: str) -> list:
+    """
+    Display expected modality for the model.
+
+    This function displays the expected modality for the given model name.
+
+    :param model_name: The name of the model.
+    :type model_name: str
+    :return: A list of modalities.
+    :rtype: list
+    """
+    if model_name not in AVAILABLE_MODELS:
+        logging.error(f"The model name {model_name} is not recognized.")
+        return []
+
+    modalities = EXPECTED_MODALITIES[model_name]
+    expected_prefix = [m + "_" for m in modalities]  # Add underscore to each modality to create prefix
+
+    print(
+        f" Modality: {modalities} | "
+        f" No. of modalities: {len(modalities)}"
+        f" | Required prefix for non-DICOM files: {expected_prefix}")
+    
+    logging.info(f" Required modalities: {modalities} | No. of modalities: {len(modalities)} "
+                 f"| Required prefix for non-DICOM files: {expected_prefix}")
+    
+    print(
+        f"{constants.ANSI_ORANGE} Warning: Subjects which don't have the required modalities [check file prefix] "
+        f"will be skipped. {constants.ANSI_RESET}")
+
+    warning_message = " Skipping subjects without the required modalities (check file prefix).\n" \
+                      " These subjects will be excluded from analysis and their data will not be used."
+    
+    logging.warning(warning_message)
+
+    return modalities
