@@ -71,6 +71,8 @@ from lionz import display
 from lionz import constants
 from lionz.resources import AVAILABLE_MODELS, check_cuda
 from lionz import input_validation
+from lionz import file_utilities
+from lionz import download
 
 logging.basicConfig(format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s', level=logging.INFO,
                     filename=datetime.now().strftime('lionz-v.0.1.0.%H-%M-%d-%m-%Y.log'),
@@ -150,4 +152,13 @@ def main():
     else:
         logging.info(f"Input validation successful.")
 
-        
+    # ------------------------------
+    # DOWNLOAD THE MODEL
+    # ------------------------------
+
+    print('')
+    print(f'{constants.ANSI_VIOLET} {emoji.emojize(":globe_with_meridians:")} MODEL DOWNLOAD:{constants.ANSI_RESET}')
+    print('')
+    model_path = constants.NNUNET_RESULTS_FOLDER
+    file_utilities.create_directory(model_path)
+    download.model(model_name, model_path)

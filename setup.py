@@ -41,7 +41,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'lionz=lionz.main:main'
+            'lionz=lionz.lionz:main'
         ]
     },
     classifiers=[
