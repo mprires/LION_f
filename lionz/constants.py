@@ -12,11 +12,23 @@ This module contains the constants that are used in the LIONZ project.
 """
 
 import os
+import sys
 
-from lionz import file_utilities
+
+def get_virtual_env_root() -> str:
+    """
+    Returns the root directory of the virtual environment.
+
+    :return: The root directory of the virtual environment.
+    :rtype: str
+    """
+    python_exe = sys.executable
+    virtual_env_root = os.path.dirname(os.path.dirname(python_exe))
+    return virtual_env_root
+
 
 # Get the root directory of the virtual environment
-project_root = file_utilities.get_virtual_env_root()
+project_root = get_virtual_env_root()
 
 # Define the paths to the trained models and the LIONZ model
 NNUNET_RESULTS_FOLDER = os.path.join(project_root, 'models', 'nnunet_trained_models')
@@ -35,7 +47,21 @@ ANSI_VIOLET = '\033[38;5;141m'
 ANSI_RED = '\033[38;5;196m'
 ANSI_RESET = '\033[0m'
 
-
 # Define folder names
 SEGMENTATIONS_FOLDER = 'segmentations'
 STATS_FOLDER = 'stats'
+WORKFLOW_FOLDER = 'workflow'
+
+# PREPROCESSING PARAMETERS
+
+MATRIX_THRESHOLD = 200 * 200 * 600
+Z_AXIS_THRESHOLD = 200
+MARGIN_PADDING = 20
+INTERPOLATION = 'bspline'
+CHUNK_THRESHOLD = 200
+
+# DISPLAY PARAMETERS
+
+MIP_ROTATION_STEP = 40
+DISPLAY_VOXEL_SPACING = (3, 3, 3)
+FRAME_DURATION = 0.4

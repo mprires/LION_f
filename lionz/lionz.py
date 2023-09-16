@@ -54,7 +54,6 @@ __author__ = "Lalith kumar shiyam sundar, Sebastian Gutschmayer, Manuel pires"
 __email__ = "lalith.shiyamsundar@meduniwien.ac.at, sebastian.gutschmayer@meduniwien.ac.at, manuel.pires@meduniwien.ac.at"
 __version__ = "0.1"
 
-
 # Imports for the module
 
 
@@ -63,16 +62,21 @@ import glob
 import logging
 import os
 import time
-import emoji
 from datetime import datetime
-import colorama
 
-from lionz import display
+import colorama
+import emoji
+from halo import Halo
+
 from lionz import constants
-from lionz.resources import AVAILABLE_MODELS, check_cuda
-from lionz import input_validation
-from lionz import file_utilities
+from lionz import display
 from lionz import download
+from lionz import file_utilities
+from lionz import image_conversion
+from lionz import input_validation
+from lionz import image_processing
+from lionz.predict import predict_tumor, post_process
+from lionz.resources import AVAILABLE_MODELS, check_cuda, TRACER_WORKFLOWS
 
 logging.basicConfig(format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s', level=logging.INFO,
                     filename=datetime.now().strftime('lionz-v.0.1.0.%H-%M-%d-%m-%Y.log'),
@@ -85,31 +89,31 @@ def main():
 
     # Argument parser
     parser = argparse.ArgumentParser(
-    description=display.get_usage_message(),
-    formatter_class=argparse.RawTextHelpFormatter,  # To retain the custom formatting
-    add_help=False  # We'll add our own help option later
+        description=display.get_usage_message(),
+        formatter_class=argparse.RawTextHelpFormatter,  # To retain the custom formatting
+        add_help=False  # We'll add our own help option later
     )
 
     # Main directory containing subject folders
     parser.add_argument(
-        "-d", "--main_directory", 
-        type=str, 
+        "-d", "--main_directory",
+        type=str,
         required=True,
         metavar="<MAIN_DIRECTORY>",
         help="Specify the main directory containing subject folders."
     )
-    
+
     # Name of the model to use for segmentation
     model_help_text = "Choose the model for segmentation from the following:\n" + "\n".join(AVAILABLE_MODELS)
     parser.add_argument(
-        "-m", "--model_name", 
-        type=str, 
-        choices=AVAILABLE_MODELS, 
+        "-m", "--model_name",
+        type=str,
+        choices=AVAILABLE_MODELS,
         required=True,
         metavar="<MODEL_NAME>",
         help=model_help_text
     )
-    
+
     # Custom help option
     parser.add_argument(
         "-h", "--help",
@@ -136,7 +140,7 @@ def main():
     # ----------------------------------
     # INPUT VALIDATION AND PREPARATION
     # ----------------------------------
-    
+
     logging.info(' ')
     logging.info('- Main directory: ' + parent_folder)
     logging.info('- Model name: ' + model_name)
@@ -162,3 +166,111 @@ def main():
     model_path = constants.NNUNET_RESULTS_FOLDER
     file_utilities.create_directory(model_path)
     download.model(model_name, model_path)
+
+    # ------------------------------
+    # INPUT STANDARDIZATION
+    # ------------------------------
+    print('')
+    print(
+        f'{constants.ANSI_VIOLET} {emoji.emojize(":magnifying_glass_tilted_left:")} STANDARDIZING INPUT DATA TO NIFTI:{constants.ANSI_RESET}')
+    print('')
+    logging.info(' ')
+    logging.info(' STANDARDIZING INPUT DATA TO NIFTI:')
+    logging.info(' ')
+    image_conversion.standardize_to_nifti(parent_folder)
+    print(f"{constants.ANSI_GREEN} Standardization complete.{constants.ANSI_RESET}")
+    logging.info(" Standardization complete.")
+
+    # ------------------------------
+    # CHECK FOR LIONZ COMPLIANCE
+    # ------------------------------
+
+    subjects = [os.path.join(parent_folder, d) for d in os.listdir(parent_folder) if
+                os.path.isdir(os.path.join(parent_folder, d))]
+    lion_compliant_subjects = input_validation.select_lion_compliant_subjects(subjects, modalities)
+
+    # -------------------------------------------------
+    # RUN PREDICTION ONLY FOR MOOSE COMPLIANT SUBJECTS
+    # -------------------------------------------------
+
+    print('')
+    print(f'{constants.ANSI_VIOLET} {emoji.emojize(":crystal_ball:")} PREDICT:{constants.ANSI_RESET}')
+    print('')
+    logging.info(' ')
+    logging.info(' PERFORMING PREDICTION:')
+    logging.info(' ')
+
+    spinner = Halo(text=' Initiating', spinner='dots')
+    spinner.start()
+    start_total_time = time.time()
+    num_subjects = len(lion_compliant_subjects)
+    for i, subject in enumerate(lion_compliant_subjects):
+        # SETTING UP DIRECTORY STRUCTURE
+        spinner.text = f'[{i + 1}/{num_subjects}] Setting up directory structure for {os.path.basename(subject)}...'
+        logging.info(' ')
+        logging.info(f'{constants.ANSI_VIOLET} SETTING UP LION-Z DIRECTORY:'
+                     f'{constants.ANSI_RESET}')
+        logging.info(' ')
+        lion_dir, input_dirs, output_dir, stats_dir, workflow_dir = file_utilities.lion_folder_structure(subject,
+                                                                                                         model_name,
+                                                                                                         modalities)
+        logging.info(f" LION directory for subject {os.path.basename(subject)} at: {lion_dir}")
+
+        # ORGANISE DATA ACCORDING TO MODALITY
+        spinner.text = f'[{i + 1}/{num_subjects}] Organising data according to modality for {os.path.basename(subject)}...'
+        file_utilities.organise_files_by_modality([subject], modalities, lion_dir)
+
+        # ORGANIZE IMAGES ACCORDING TO WORKFLOW STAGES
+        spinner.text = f'Processing subject {i + 1}/{num_subjects}: Organizing images for {os.path.basename(subject)} ' \
+                       f'by workflow.'
+        file_utilities.create_model_based_workflows(lion_dir, model_name)
+
+        # PREDICT IMAGES
+        start_time = time.time()
+        spinner.text = f'[{i + 1}/{num_subjects}] Predicting images for {os.path.basename(subject)}...'
+        logging.info(' ')
+        logging.info(f'{constants.ANSI_VIOLET} PREDICTING IMAGES:'
+                     f'{constants.ANSI_RESET}')
+        logging.info(' ')
+        segmentation_file = predict_tumor(workflow_dir, model_name, output_dir, accelerator)
+        # Post-processing the segmentation file
+        reference_modality = TRACER_WORKFLOWS[model_name]['reference_modality']
+        # get the reference_modality directory from the lionz directory
+        reference_modality_dir = os.path.join(lion_dir, reference_modality)
+        # get the reference_modality image from the reference_modality directory extension .nii or .nii.gz
+        nifti_files = glob.glob(os.path.join(reference_modality_dir, '*.nii*'))
+        reference_modality_file = nifti_files[0]
+        # resample the segmentation file to the reference_modality image
+        post_process(reference_modality_file, segmentation_file, segmentation_file)
+        # rename the segmentation file with the subject name as prefix
+        os.rename(segmentation_file, os.path.join(output_dir, os.path.basename(subject) + '_seg.nii.gz'))
+        new_segmentation_file = os.path.join(output_dir, os.path.basename(subject) + '_seg.nii.gz')
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        spinner.text = f' {constants.ANSI_GREEN}[{i + 1}/{num_subjects}] Prediction done for {os.path.basename(subject)} using {model_name}!' \
+                       f' | Elapsed time: {round(elapsed_time / 60, 1)} min{constants.ANSI_RESET}'
+        time.sleep(3)
+        spinner.text = f'[{i + 1}/{num_subjects}] Calculating fused MIP of PET image and tumor mask for ' \
+                       f'{os.path.basename(subject)}...'
+        image_processing.create_rotational_mip_gif(reference_modality_file,
+                                                   new_segmentation_file,
+                                                   os.path.join(output_dir,
+                                                                os.path.basename(subject) +
+                                                                '_rotational_mip.gif'),
+                                                   rotation_step=constants.MIP_ROTATION_STEP)
+        spinner.text = f'{constants.ANSI_GREEN} [{i + 1}/{num_subjects}] Fused MIP of PET image and tumor mask ' \
+                       f'calculated' \
+                       f' for {os.path.basename(subject)}! '
+        time.sleep(3)
+        tumor_volume, average_intensity = image_processing.compute_tumor_metrics(new_segmentation_file,
+                                                                                 reference_modality_file)
+        image_processing.save_metrics_to_csv(tumor_volume, average_intensity, os.path.join(stats_dir,
+                                                                                           os.path.basename(subject) +
+                                                                                           '_metrics.csv'))
+    end_total_time = time.time()
+    total_elapsed_time = (end_total_time - start_total_time) / 60
+    time_per_dataset = total_elapsed_time / len(lion_compliant_subjects)
+
+    spinner.succeed(f'{constants.ANSI_GREEN} All predictions done! | Total elapsed time for '
+                    f'{len(lion_compliant_subjects)} datasets: {round(total_elapsed_time, 1)} min'
+                    f' | Time per dataset: {round(time_per_dataset, 2)} min {constants.ANSI_RESET}')

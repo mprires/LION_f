@@ -14,6 +14,8 @@ LIONZ stands for Lesion segmentatION, a sophisticated solution for lesion segmen
 """
 
 import torch
+import SimpleITK as sitk
+import numpy as np
 from lionz import constants
 
 # List of available models in the LIONZ application
@@ -61,22 +63,25 @@ This structure ensures modularity, making it easy to add new tracers, workflows,
 
 TRACER_WORKFLOWS = {
     'fdg': {
+        'reference_modality': 'PT',
         'workflows': {
             'pet_ct': {
+                'tumor_label': 11,
                 'channels': {
                     'PT': '0000.nii.gz',
                     'CT': '0001.nii.gz'
                 }
             },
             'pet': {
+                'tumor_label': 11,  # Adjust this if the tumor label is different for the 'pet' workflow
                 'channels': {
                     'PT': '0000.nii.gz'
                 }
             }
         }
     },
-    # This structure allows for easy addition of more tracers with distinct workflows and channels.
     'psma': {
+        'reference_modality': 'PT',  # You can change this for psma if needed
         'workflows': {
             'pet': {
                 'channels': {
@@ -86,6 +91,7 @@ TRACER_WORKFLOWS = {
         }
     }
 }
+
 
 # This dictionary holds the pre-trained models available in MooseZ library.
 # Each key is a unique model identifier following a specific syntax mentioned above
@@ -104,11 +110,12 @@ TRACER_WORKFLOWS = {
 MODELS = {
     "fdg": [
         {
-            "url": "https://lionz.s3.eu.cloud-object-storage.appdomain.cloud/Dataset789_Tumors_all_organs_LION-DA5-2000.zip", #pet_ct
+            "url": "https://lionz.s3.eu.cloud-object-storage.appdomain.cloud/Dataset789_Tumors_all_organs_LION-DA5"
+                   "-2000.zip",
             "filename": "Dataset789_Tumors_all_organs_LION-DA5-2000.zip",
             "directory": "Dataset789_Tumors_all_organs_LION-DA5-2000",
             "trainer": "nnUNetTrainerDA5",
-            "voxel_spacing": ["3", "3", "3"],
+            "voxel_spacing": [3, 3, 3],
             "multilabel_prefix": "fdg_tumor_01_"
         },
         {
@@ -116,7 +123,7 @@ MODELS = {
             "filename": "Dataset804_Tumors_all_organs.zip",
             "directory": "Dataset804_Tumors_all_organs",
             "trainer": "nnUNetTrainerDA5",
-            "voxel_spacing": ["3", "3", "3"],
+            "voxel_spacing": [3, 3, 3],
             "multilabel_prefix": "fdg_tumor_"
         }
     ],
@@ -132,7 +139,6 @@ MODELS = {
     ],
     # Add more tracers as needed, following the same structure
 }
-
 
 
 def check_cuda() -> str:
@@ -152,3 +158,55 @@ def check_cuda() -> str:
         print(
             f"{constants.ANSI_GREEN} CUDA is available on this device with {device_count} GPU(s). Predictions will be run on GPU.{constants.ANSI_RESET}")
         return "cuda"
+
+
+# This function maps the model name to the task number. This is the number that comes after Dataset in DatasetXXXX,
+# after nnunetv2 training. If your model folder is Dataset123, then the task number is 123.
+# It checks for known model names and returns the associated task number, this is ABSOLUTELY NEEDED for the moosez to
+# work. If the provided model name doesn't match any known model, it raises an exception.
+
+# When adding your own model, update this function to return the task number associated with your model.
+
+def map_model_name_to_task_number(model_name: str) -> dict:
+    """
+    Maps the model name to the task number based on the workflow.
+    :param model_name: The name of the model.
+    :return: A dictionary of workflows and their associated task numbers.
+    """
+    if model_name == "fdg":
+        return {'pet_ct': '789', 'pet': '804'}
+    elif model_name == "psma":
+        return {'workflow_name_placeholder': '444'}  # replace 'workflow_name_placeholder' with the actual workflow name
+    else:
+        raise Exception(f"Error: The model name '{model_name}' is not valid.")
+
+
+def has_label_in_mask(mask_path: str) -> bool:
+    """
+    Check if the mask has any label inside.
+
+    Args:
+        mask_path (str): Path to the mask image file.
+
+    Returns:
+        bool: True if there's a label, False otherwise.
+    """
+
+    mask = sitk.ReadImage(mask_path)
+    mask_array = sitk.GetArrayFromImage(mask)
+    return mask_array.any()
+
+
+RULES = {
+    "fdg": {
+        'pet_ct': {
+            'rule_func': has_label_in_mask,
+            'action_on_true': 'delete_mask_and_continue',
+            'action_on_false': 'stop'
+        },
+        'pet': {
+            'rule_func': None  # No rule for this workflow
+        }
+    }
+    # Add more rules for different tracers and workflows as necessary.
+}

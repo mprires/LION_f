@@ -25,6 +25,7 @@ Usage:
 """
 
 import logging
+
 import emoji
 import pyfiglet
 
@@ -60,7 +61,7 @@ def logo():
     print(' ')
     logo_color_code = constants.ANSI_VIOLET
     slogan_color_code = constants.ANSI_VIOLET
-    result = logo_color_code + pyfiglet.figlet_format(" LIONZ 0.1.0", font="smslant").rstrip() + "\033[0m"
+    result = logo_color_code + pyfiglet.figlet_format("LION 0.1.0", font="slant").rstrip() + "\033[0m"
     text = slogan_color_code + " A part of the ENHANCE community. Join us at www.enhance.pet to build the future of " \
                                "medical imaging together." + "\033[0m"
     print(result)

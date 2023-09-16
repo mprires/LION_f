@@ -13,16 +13,17 @@ LIONZ stands for Lesion segmentatION, a sophisticated solution for lesion segmen
 .. versionadded:: 0.1.0
 """
 
-import os
 import io
-import requests
 import logging
+import os
 import zipfile
+
+import requests
 from rich.console import Console
 from rich.progress import Progress, TextColumn, BarColumn, FileSizeColumn, TransferSpeedColumn, TimeRemainingColumn
 
-from lionz import resources
 from lionz import constants
+from lionz import resources
 
 
 def model(tracer_name, model_path):
