@@ -112,7 +112,8 @@ def predict_tumor(workflow_dir: str, model_name: str, output_dir: str, accelerat
             logging.info(f" Deleting mask {mask_path}")
             os.remove(mask_path)
             mask_path = None
-        # if action == "continue", just continue to the next workflow without doing anything special
+        elif action == "continue":
+            continue
 
     # get the nifti mask in output_dir
     resampled_segmentation_file = get_files(output_dir, '.nii.gz')[0]

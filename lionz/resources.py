@@ -94,7 +94,6 @@ TRACER_WORKFLOWS = {
     }
 }
 
-
 # This dictionary holds the pre-trained models available in MooseZ library.
 # Each key is a unique model identifier following a specific syntax mentioned above
 # It should have the same name mentioned in AVAILABLE_MODELS list.
@@ -227,12 +226,18 @@ def has_label_above_threshold(mask_path: str, threshold: int = 10) -> bool:
 
     # If non-zero voxels are below the threshold, make the entire mask zero
     if non_zero_voxel_count < threshold:
+        logging.info(f"Mask {mask_path} has less than {threshold} non-zero voxels. Flushing the mask with zero.")
         # Update the mask to have all zero values
         zero_mask = sitk.GetImageFromArray(np.zeros_like(mask_array))
         zero_mask.CopyInformation(mask)  # Copy metadata from the original mask
         sitk.WriteImage(zero_mask, mask_path)  # Overwrite the original mask with the blank one
-
         return False
+
+    # If non-zero voxels are above the threshold, save the updated mask array
+    logging.info(f"Mask {mask_path} has more than {threshold} non-zero voxels. Saving the updated mask after cleaning.")
+    updated_mask = sitk.GetImageFromArray(mask_array)
+    updated_mask.CopyInformation(mask)
+    sitk.WriteImage(updated_mask, mask_path)
 
     return True
 
@@ -240,12 +245,14 @@ def has_label_above_threshold(mask_path: str, threshold: int = 10) -> bool:
 RULES = {
     "fdg": {
         'pet_ct': {
-            'rule_func': (has_label_above_threshold, {"threshold": 10}), # flush everything below 10 voxels
+            'rule_func': (has_label_above_threshold, {"threshold": 10}),  # flush everything below 10 voxels
             'action_on_true': 'delete_mask_and_continue',
             'action_on_false': 'stop'
         },
         'pet': {
-            'rule_func': None  # No rule for this workflow
+            'rule_func': (has_label_above_threshold, {"threshold": 10}),
+            'action_on_true': 'continue',
+            'action_on_false': 'continue'
         }
     }
     # Add more rules for different tracers and workflows as necessary.
