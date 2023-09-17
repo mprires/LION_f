@@ -189,6 +189,7 @@ def main():
                 os.path.isdir(os.path.join(parent_folder, d))]
     lion_compliant_subjects = input_validation.select_lion_compliant_subjects(subjects, modalities)
 
+
     # -------------------------------------------------
     # RUN PREDICTION ONLY FOR MOOSE COMPLIANT SUBJECTS
     # -------------------------------------------------
@@ -275,3 +276,73 @@ def main():
     spinner.succeed(f'{constants.ANSI_GREEN} All predictions done! | Total elapsed time for '
                     f'{len(lion_compliant_subjects)} datasets: {round(total_elapsed_time, 1)} min'
                     f' | Time per dataset: {round(time_per_dataset, 2)} min {constants.ANSI_RESET}')
+
+
+def lion(model_name: str, input_dir: str, seg_output_dir: str, accelerator: str) -> None:
+    """
+    Execute the LION tumour segmentation process.
+
+    This function carries out the following steps:
+    1. Sets the path for model results.
+    2. Creates the required directory for the model.
+    3. Downloads the model based on the provided `model_name`.
+    4. Validates and prepares the input directory to be compatible with nnUNet.
+    5. Executes the prediction process.
+
+    :param model_name: The name of the model to be used for predictions. This model will be downloaded and used 
+                       for the tumour segmentation process.
+    :type model_name: str
+
+    :param input_dir: Path to the directory containing the images (in nifti, either .nii or .nii.gz) to be processed.
+    :type input_dir: str
+
+    :param output_dir: Path to the directory where the segmented output will be saved.
+    :type output_dir: str
+
+    :param accelerator: Specifies the type of accelerator to be used. Common values include "cpu" and "cuda" for 
+                        GPU acceleration.
+    :type accelerator: str
+
+    :return: None
+    :rtype: None
+
+    :Example:
+
+    >>> lion('fdg', '/path/to/input/images', '/path/to/save/output', 'cuda')
+
+    """
+    model_path = constants.NNUNET_RESULTS_FOLDER
+    modalities = display.expectations(model_name)
+
+    file_utilities.create_directory(model_path)
+    download.model(model_name, model_path)
+
+    lion_dir, input_dirs, output_dir, stats_dir, workflow_dir = file_utilities.lion_folder_structure(input_dir,
+                                                                                                        model_name,
+                                                                                                        modalities)
+    file_utilities.organise_files_by_modality([input_dir], modalities, lion_dir)
+    file_utilities.create_model_based_workflows(lion_dir, model_name)
+    segmentation_file = predict_tumor(workflow_dir, model_name, output_dir, accelerator)
+    # Post-processing the segmentation file
+    reference_modality = TRACER_WORKFLOWS[model_name]['reference_modality']
+    # get the reference_modality directory from the lionz directory
+    reference_modality_dir = os.path.join(lion_dir, reference_modality)
+    # get the reference_modality image from the reference_modality directory extension .nii or .nii.gz
+    nifti_files = glob.glob(os.path.join(reference_modality_dir, '*.nii*'))
+    reference_modality_file = nifti_files[0]
+    # resample the segmentation file to the reference_modality image
+    post_process(reference_modality_file, segmentation_file, segmentation_file)
+    # rename the segmentation file with the subject name as prefix
+    os.rename(segmentation_file, os.path.join(seg_output_dir, os.path.basename(input_dir) + '_seg.nii.gz'))
+    new_segmentation_file = os.path.join(seg_output_dir, os.path.basename(input_dir) + '_seg.nii.gz')
+
+    # Save some statistics
+    tumor_volume, average_intensity = image_processing.compute_tumor_metrics(new_segmentation_file,
+                                                                            reference_modality_file)
+    image_processing.save_metrics_to_csv(tumor_volume, average_intensity, os.path.join(stats_dir,
+                                                                                        os.path.basename(input_dir) +
+                                                                                        '_metrics.csv'))
+    
+
+if __name__ == '__main__':
+    main()
