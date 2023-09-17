@@ -110,7 +110,7 @@ def predict_tumor(workflow_dir: str, model_name: str, output_dir: str, accelerat
             break
         elif action == "delete_mask_and_continue" and mask_path:
             logging.info(f" Deleting mask {mask_path}")
-            #os.remove(mask_path)
+            os.remove(mask_path)
             mask_path = None
         # if action == "continue", just continue to the next workflow without doing anything special
 
