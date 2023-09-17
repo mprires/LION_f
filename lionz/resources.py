@@ -197,15 +197,15 @@ def has_label_above_threshold(mask_path: str, threshold: int = 10) -> bool:
     mask = sitk.ReadImage(mask_path)
     mask_array = sitk.GetArrayFromImage(mask)
 
-    MARGIN_PADDING = constants.MARGIN_SCALING_FACTOR * threshold
+    margin_padding = constants.MARGIN_SCALING_FACTOR * threshold
 
     # Flush voxels from the border to inside with zeros to avoid the edge artefacts
-    mask_array[:MARGIN_PADDING, :, :] = 0
-    mask_array[-MARGIN_PADDING:, :, :] = 0
-    mask_array[:, :MARGIN_PADDING, :] = 0
-    mask_array[:, -MARGIN_PADDING:, :] = 0
-    mask_array[:, :, :MARGIN_PADDING] = 0
-    mask_array[:, :, -MARGIN_PADDING:] = 0
+    mask_array[:margin_padding, :, :] = 0
+    mask_array[-margin_padding:, :, :] = 0
+    mask_array[:, :margin_padding, :] = 0
+    mask_array[:, -margin_padding:, :] = 0
+    mask_array[:, :, :margin_padding] = 0
+    mask_array[:, :, -margin_padding:] = 0
 
     # Connected component analysis
     labeled_array, num_features = label(mask_array > 0)
@@ -233,7 +233,7 @@ def has_label_above_threshold(mask_path: str, threshold: int = 10) -> bool:
         sitk.WriteImage(zero_mask, mask_path)  # Overwrite the original mask with the blank one
         return False
 
-    # If non-zero voxels are above the threshold, save the updated mask array
+    # If non-zero voxels are above the threshold, save the updated cleaned mask array
     logging.info(f"Mask {mask_path} has more than {threshold} non-zero voxels. Saving the updated mask after cleaning.")
     updated_mask = sitk.GetImageFromArray(mask_array)
     updated_mask.CopyInformation(mask)
