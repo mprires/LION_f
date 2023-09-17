@@ -198,13 +198,15 @@ def has_label_above_threshold(mask_path: str, threshold: int = 10) -> bool:
     mask = sitk.ReadImage(mask_path)
     mask_array = sitk.GetArrayFromImage(mask)
 
+    MARGIN_PADDING = constants.MARGIN_SCALING_FACTOR * threshold
+
     # Flush voxels from the border to inside with zeros to avoid the edge artefacts
-    mask_array[:threshold, :, :] = 0
-    mask_array[-threshold:, :, :] = 0
-    mask_array[:, :threshold, :] = 0
-    mask_array[:, -threshold:, :] = 0
-    mask_array[:, :, :threshold] = 0
-    mask_array[:, :, -threshold:] = 0
+    mask_array[:MARGIN_PADDING, :, :] = 0
+    mask_array[-MARGIN_PADDING:, :, :] = 0
+    mask_array[:, :MARGIN_PADDING, :] = 0
+    mask_array[:, -MARGIN_PADDING:, :] = 0
+    mask_array[:, :, :MARGIN_PADDING] = 0
+    mask_array[:, :, -MARGIN_PADDING:] = 0
 
     # Connected component analysis
     labeled_array, num_features = label(mask_array > 0)
