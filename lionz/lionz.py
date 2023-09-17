@@ -244,8 +244,8 @@ def main():
         # resample the segmentation file to the reference_modality image
         post_process(reference_modality_file, segmentation_file, segmentation_file)
         # rename the segmentation file with the subject name as prefix
-        os.rename(segmentation_file, os.path.join(output_dir, os.path.basename(subject) + '_seg.nii.gz'))
-        new_segmentation_file = os.path.join(output_dir, os.path.basename(subject) + '_seg.nii.gz')
+        os.rename(segmentation_file, os.path.join(output_dir, os.path.basename(subject) + '_tumor_seg.nii.gz'))
+        new_segmentation_file = os.path.join(output_dir, os.path.basename(subject) + '_tumor_seg.nii.gz')
         end_time = time.time()
         elapsed_time = end_time - start_time
         spinner.text = f' {constants.ANSI_GREEN}[{i + 1}/{num_subjects}] Prediction done for {os.path.basename(subject)} using {model_name}!' \
@@ -266,6 +266,9 @@ def main():
         time.sleep(3)
         tumor_volume, average_intensity = image_processing.compute_tumor_metrics(new_segmentation_file,
                                                                                  reference_modality_file)
+        # if tumor_volume is zero then the segmentation should have a suffix _no_tumor_seg.nii.gz
+        if tumor_volume == 0:
+            os.rename(new_segmentation_file, os.path.join(output_dir, os.path.basename(subject) + '_no_tumor_seg.nii.gz'))
         image_processing.save_metrics_to_csv(tumor_volume, average_intensity, os.path.join(stats_dir,
                                                                                            os.path.basename(subject) +
                                                                                            '_metrics.csv'))
@@ -333,12 +336,15 @@ def lion(model_name: str, input_dir: str, seg_output_dir: str, accelerator: str)
     # resample the segmentation file to the reference_modality image
     post_process(reference_modality_file, segmentation_file, segmentation_file)
     # rename the segmentation file with the subject name as prefix
-    os.rename(segmentation_file, os.path.join(seg_output_dir, os.path.basename(input_dir) + '_seg.nii.gz'))
-    new_segmentation_file = os.path.join(seg_output_dir, os.path.basename(input_dir) + '_seg.nii.gz')
+    os.rename(segmentation_file, os.path.join(seg_output_dir, os.path.basename(input_dir) + '_tumor_seg.nii.gz'))
+    new_segmentation_file = os.path.join(seg_output_dir, os.path.basename(input_dir) + '_tumor_seg.nii.gz')
 
     # Save some statistics
     tumor_volume, average_intensity = image_processing.compute_tumor_metrics(new_segmentation_file,
                                                                             reference_modality_file)
+    if tumor_volume == 0:
+        os.rename(new_segmentation_file, os.path.join(seg_output_dir, os.path.basename(input_dir) +
+                                                      '_no_tumor_seg.nii.gz'))
     image_processing.save_metrics_to_csv(tumor_volume, average_intensity, os.path.join(stats_dir,
                                                                                         os.path.basename(input_dir) +
                                                                                         '_metrics.csv'))
