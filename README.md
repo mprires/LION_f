@@ -1,3 +1,4 @@
+![Lion-logo.png](/Images/Lion-logo.png)
 ## LION (Lesion segmentatION): Loud. Proud. Unbounded. 🦁
 
 LION has roared onto the scene, revolutionizing the way we view lesion segmentation. Born from the same lineage as MOOSE 2.0, LION is laser-focused on PET tumor segmentation. Our curated models, each crafted with precision, cater to various tracers, setting the gold standard in lesion detection.
