@@ -78,6 +78,8 @@ from lionz import image_processing
 from lionz.predict import predict_tumor, post_process
 from lionz.resources import AVAILABLE_MODELS, check_cuda, TRACER_WORKFLOWS
 
+from lionz.nnUNet_custom_trainer.utility import add_custom_trainers_to_local_nnunetv2
+
 logging.basicConfig(format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s', level=logging.INFO,
                     filename=datetime.now().strftime('lionz-v.0.1.0.%H-%M-%d-%m-%Y.log'),
                     filemode='w')
@@ -149,6 +151,9 @@ def main():
     print(f'{constants.ANSI_VIOLET} {emoji.emojize(":memo:")} NOTE:{constants.ANSI_RESET}')
     print(' ')
     modalities = display.expectations(model_name)
+    custom_trainer_status = add_custom_trainers_to_local_nnunetv2()
+    logging.info('- Custom trainer: ' + custom_trainer_status)
+    print(f' {custom_trainer_status}')
     accelerator = check_cuda()
     inputs_valid = input_validation.validate_inputs(parent_folder, model_name)
     if not inputs_valid:
