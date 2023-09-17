@@ -17,6 +17,7 @@ import logging
 import torch
 import SimpleITK as sitk
 import numpy as np
+from scipy.ndimage import label, sum as nd_sum
 from lionz import constants
 
 # List of available models in the LIONZ application
@@ -205,9 +206,22 @@ def has_label_above_threshold(mask_path: str, threshold: int = 10) -> bool:
     mask_array[:, :, :threshold] = 0
     mask_array[:, :, -threshold:] = 0
 
+    # Connected component analysis
+    labeled_array, num_features = label(mask_array > 0)
+    component_sizes = nd_sum(mask_array > 0, labeled_array, range(num_features + 1))
+
+    # Mask out small components
+    mask_size = mask_array > 0
+    for index_size, component_size in enumerate(component_sizes):
+        if component_size < threshold:
+            mask_size[labeled_array == index_size] = False
+
+    mask_array = mask_array * mask_size
+
     non_zero_voxel_count = np.sum(mask_array > 0)
 
-    logging.info(f"Number of non-zero voxels after clearing a margin of {threshold} voxels: {non_zero_voxel_count}")
+    logging.info(
+        f"Number of non-zero voxels after clearing a margin of {threshold} voxels and connected component analysis: {non_zero_voxel_count}")
 
     # If non-zero voxels are below the threshold, make the entire mask zero
     if non_zero_voxel_count < threshold:
