@@ -20,11 +20,13 @@ import nibabel
 import numpy as np
 import cv2
 import imageio
+import logging
+
 from scipy.ndimage import rotate
 from skimage import exposure
 from dask.distributed import Client
 
-from lionz.constants import CHUNK_THRESHOLD, MATRIX_THRESHOLD, Z_AXIS_THRESHOLD, INTERPOLATION,  DISPLAY_VOXEL_SPACING, \
+from lionz.constants import CHUNK_THRESHOLD, MATRIX_THRESHOLD, Z_AXIS_THRESHOLD, INTERPOLATION,  MIP_VOXEL_SPACING, \
     FRAME_DURATION
 from typing import Tuple
 
@@ -558,14 +560,21 @@ def create_rotational_mip_gif(pet_path: str, mask_path: str, gif_path: str, rota
     sitk_pet_img = sitk.ReadImage(pet_path)
     sitk_mask_img = sitk.ReadImage(mask_path)
 
+    mask_array = sitk.GetArrayFromImage(sitk_mask_img)
+    if np.all(mask_array == 0):  # Check if the mask is empty
+        logging.info(f"Warning: The mask at {mask_path} is empty. Processing PET image without mask overlay.")
+        mask_overlay = False
+    else:
+        mask_overlay = True
+
     # Resample the images
     resampler = ImageResampler()
-    sitk_pet_img_resampled = resampler.resample_image_SimpleITK_DASK(sitk_pet_img, 'linear', DISPLAY_VOXEL_SPACING)
-    sitk_mask_img_resampled = resampler.resample_image_SimpleITK_DASK(sitk_mask_img, 'nearest', DISPLAY_VOXEL_SPACING)
+    sitk_pet_img_resampled = resampler.resample_image_SimpleITK_DASK(sitk_pet_img, 'linear', output_spacing)
+    sitk_mask_img_resampled = resampler.resample_image_SimpleITK_DASK(sitk_mask_img, 'nearest', output_spacing)
 
     # Convert back to numpy array
     pet_img_resampled = sitk.GetArrayFromImage(sitk_pet_img_resampled)
-    mask_img_resampled = sitk.GetArrayFromImage(sitk_mask_img_resampled)
+    mask_img_resampled = sitk.GetArrayFromImage(sitk_mask_img_resampled) if mask_overlay else None
 
     # Normalize the PET image
     pet_img_resampled = normalize_img(pet_img_resampled)
@@ -576,27 +585,30 @@ def create_rotational_mip_gif(pet_path: str, mask_path: str, gif_path: str, rota
     # Create color versions of the images
     pet_img_color = np.stack((pet_img_resampled, pet_img_resampled, pet_img_resampled), axis=-1)  # RGB
     mask_img_color = np.stack((0.5 * mask_img_resampled, np.zeros_like(mask_img_resampled), 0.5 * mask_img_resampled),
-                              axis=-1)  # RGB, purple color
+                              axis=-1) if mask_overlay else None  # RGB, purple color
 
     # Create a Dask client with default settings
     client = Client()
 
     # Scatter the data to the workers
     pet_img_color_future = client.scatter(pet_img_color, broadcast=True)
-    mask_img_color_future = client.scatter(mask_img_color, broadcast=True)
+    mask_img_color_future = client.scatter(mask_img_color, broadcast=True) if mask_overlay else None
 
     # Create MIPs for a range of angles and store them
     angles = list(range(0, 360, rotation_step))
     pet_mip_images_futures = client.map(mip_3d, [pet_img_color_future] * len(angles), angles)
-    mask_mip_images_futures = client.map(mip_3d, [mask_img_color_future] * len(angles), angles)
+    mask_mip_images_futures = client.map(mip_3d, [mask_img_color_future] * len(angles), angles) if mask_overlay else []
 
     # Gather the images
     pet_mip_images = client.gather(pet_mip_images_futures)
-    mask_mip_images = client.gather(mask_mip_images_futures)
+    mask_mip_images = client.gather(mask_mip_images_futures) if mask_overlay else []
 
-    # Blend the PET and mask MIPs
-    overlay_mip_images = [cv2.addWeighted(pet_mip, 0.7, mask_mip.astype(pet_mip.dtype), 0.3, 0)
-                          for pet_mip, mask_mip in zip(pet_mip_images, mask_mip_images)]
+    if mask_overlay:
+        # Blend the PET and mask MIPs
+        overlay_mip_images = [cv2.addWeighted(pet_mip, 0.7, mask_mip.astype(pet_mip.dtype), 0.3, 0)
+                              for pet_mip, mask_mip in zip(pet_mip_images, mask_mip_images)]
+    else:
+        overlay_mip_images = pet_mip_images
 
     # Normalize the image array to 0-255
     mip_images = [(255 * (im - np.min(im)) / (np.max(im) - np.min(im))).astype(np.uint8) for im in overlay_mip_images]
@@ -617,6 +629,11 @@ def compute_tumor_metrics(mask_path: str, pet_path: str):
     # Convert images to numpy arrays
     mask_array = sitk.GetArrayFromImage(mask_img)
     pet_array = sitk.GetArrayFromImage(pet_img)
+
+    # Check if the mask is empty
+    if np.all(mask_array == 0):
+        logging.info(f"Warning: The mask at {mask_path} contains no tumor regions.")
+        return 0, 0  # Return 0 for both tumor volume and average intensity
 
     # Compute voxel volume
     spacing = mask_img.GetSpacing()
@@ -645,5 +662,6 @@ def save_metrics_to_csv(tumor_volume, avg_intensity, output_file):
             writer.writeheader()
 
         writer.writerow({'Tumor Volume (cm^3)': tumor_volume, 'Average PET Intensity (Bq/ml)': avg_intensity})
+
 
 

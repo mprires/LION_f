@@ -12,6 +12,7 @@ LIONZ stands for Lesion segmentatION, a sophisticated solution for lesion segmen
 .. moduleauthor:: Lalith Kumar Shiyam Sundar <lalith.shiyamsundar@meduniwien.ac.at>
 .. versionadded:: 0.1.0
 """
+import logging
 
 import torch
 import SimpleITK as sitk
@@ -110,11 +111,10 @@ TRACER_WORKFLOWS = {
 MODELS = {
     "fdg": [
         {
-            "url": "https://lionz.s3.eu.cloud-object-storage.appdomain.cloud/Dataset789_Tumors_all_organs_LION-DA5"
-                   "-2000.zip",
-            "filename": "Dataset789_Tumors_all_organs_LION-DA5-2000.zip",
-            "directory": "Dataset789_Tumors_all_organs_LION-DA5-2000",
-            "trainer": "nnUNetTrainerDA5",
+            "url": "https://lionz.s3.eu.cloud-object-storage.appdomain.cloud/clin_pt_fdg_ct_2000epochs.zip",
+            "filename": "Dataset789_Tumors_all_organs_LION.zip",
+            "directory": "Dataset789_Tumors_all_organs_LION",
+            "trainer": "nnUNetTrainerDA5_2000epochs",
             "voxel_spacing": [3, 3, 3],
             "multilabel_prefix": "fdg_tumor_01_"
         },
@@ -181,26 +181,50 @@ def map_model_name_to_task_number(model_name: str) -> dict:
         raise Exception(f"Error: The model name '{model_name}' is not valid.")
 
 
-def has_label_in_mask(mask_path: str) -> bool:
+def has_label_above_threshold(mask_path: str, threshold: int = 10) -> bool:
     """
-    Check if the mask has any label inside.
+    Check if the mask has non-zero voxels above a certain threshold after clearing a margin of the same size.
 
     Args:
         mask_path (str): Path to the mask image file.
+        threshold (int): Number of voxels from the border to be set to zero and
+                         minimum number of non-zero voxels needed.
 
     Returns:
-        bool: True if there's a label, False otherwise.
+        bool: True if the number of non-zero voxels (after clearing the margin) is above the threshold, False otherwise.
     """
 
     mask = sitk.ReadImage(mask_path)
     mask_array = sitk.GetArrayFromImage(mask)
-    return mask_array.any()
+
+    # Flush voxels from the border to inside with zeros to avoid the edge artefacts
+    mask_array[:threshold, :, :] = 0
+    mask_array[-threshold:, :, :] = 0
+    mask_array[:, :threshold, :] = 0
+    mask_array[:, -threshold:, :] = 0
+    mask_array[:, :, :threshold] = 0
+    mask_array[:, :, -threshold:] = 0
+
+    non_zero_voxel_count = np.sum(mask_array > 0)
+
+    logging.info(f"Number of non-zero voxels after clearing a margin of {threshold} voxels: {non_zero_voxel_count}")
+
+    # If non-zero voxels are below the threshold, make the entire mask zero
+    if non_zero_voxel_count < threshold:
+        # Update the mask to have all zero values
+        zero_mask = sitk.GetImageFromArray(np.zeros_like(mask_array))
+        zero_mask.CopyInformation(mask)  # Copy metadata from the original mask
+        sitk.WriteImage(zero_mask, mask_path)  # Overwrite the original mask with the blank one
+
+        return False
+
+    return True
 
 
 RULES = {
     "fdg": {
         'pet_ct': {
-            'rule_func': has_label_in_mask,
+            'rule_func': (has_label_above_threshold, {"threshold": 10}), # flush everything below 10 voxels
             'action_on_true': 'delete_mask_and_continue',
             'action_on_false': 'stop'
         },

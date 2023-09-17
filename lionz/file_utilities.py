@@ -157,7 +157,7 @@ def copy_file(file: str, destination: str) -> None:
     :param destination: The path to the destination directory.
     :type destination: str
     """
-    shutil.move(file, destination)
+    shutil.copy(file, destination)
 
 
 def create_model_based_workflows(lion_dir: str, model_name: str):

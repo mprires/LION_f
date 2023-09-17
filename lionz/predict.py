@@ -12,7 +12,7 @@ LIONZ stands for Lesion segmentatION, a sophisticated solution for lesion segmen
 .. moduleauthor:: Lalith Kumar Shiyam Sundar <lalith.shiyamsundar@meduniwien.ac.at>
 .. versionadded:: 0.1.0
 """
-
+import logging
 import os
 import subprocess
 
@@ -73,22 +73,6 @@ class ImagePreprocessor:
                         self._resample_image_to_reference(image, max_voxel_image, target_voxel_spacing)
 
 
-def has_label_in_mask(mask_path: str) -> bool:
-    """
-    Check if the mask has any label inside.
-
-    Args:
-        mask_path (str): Path to the mask image file.
-
-    Returns:
-        bool: True if there's a label, False otherwise.
-    """
-
-    mask = sitk.ReadImage(mask_path)
-    mask_array = sitk.GetArrayFromImage(mask)
-    return mask_array.any()
-
-
 def predict_tumor(workflow_dir: str, model_name: str, output_dir: str, accelerator: str):
     # Preprocess the images
     workflowPreprocessor = ImagePreprocessor(workflow_dir, MODELS)
@@ -103,7 +87,6 @@ def predict_tumor(workflow_dir: str, model_name: str, output_dir: str, accelerat
         # Predict using the current workflow
         current_workflow_dir = os.path.join(workflow_dir, f"{model_name}_{workflow_name}")
         trainer = [model["trainer"] for model in MODELS[model_name] if task_number in model["directory"]][0]
-
         command = f'nnUNetv2_predict -i {current_workflow_dir} -o {output_dir} -d {task_number} -c 3d_fullres' \
                   f' -f all -tr {trainer} --disable_tta -device {accelerator}'
         os.environ["nnUNet_results"] = NNUNET_RESULTS_FOLDER
@@ -122,10 +105,12 @@ def predict_tumor(workflow_dir: str, model_name: str, output_dir: str, accelerat
 
         # Decide what to do based on rules
         action = get_next_action(model_name, workflow_name, mask_path)
+        logging.info(f" Action for {workflow_name}: {action}")
         if action == "stop":
             break
         elif action == "delete_mask_and_continue" and mask_path:
-            os.remove(mask_path)
+            logging.info(f" Deleting mask {mask_path}")
+            #os.remove(mask_path)
             mask_path = None
         # if action == "continue", just continue to the next workflow without doing anything special
 
@@ -136,19 +121,21 @@ def predict_tumor(workflow_dir: str, model_name: str, output_dir: str, accelerat
 
 def get_next_action(model_name, workflow_name, mask_path):
     rule_details = RULES.get(model_name, {}).get(workflow_name, {})
-    rule_func = rule_details.get('rule_func')
-    if not mask_path:
+    rule_func_data = rule_details.get('rule_func')
+
+    if not rule_func_data:
         return "continue"
 
-    if not rule_func:
-        return "continue"
+    # Unpack the function and its arguments
+    rule_func, kwargs = rule_func_data
 
     # Check if the rule_func is callable before attempting to call it
     rule_result = None
     if callable(rule_func):
-        rule_result = rule_func(mask_path)
+        rule_result = rule_func(mask_path, **kwargs)
+        logging.info(f"Rule result for {workflow_name}: {rule_result}")
     else:
-        print(f"WARNING: function {rule_func} is not callable!")
+        logging.info(f"WARNING: function {rule_func} is not callable!")
 
     if rule_result:
         return rule_details.get('action_on_true', 'continue')

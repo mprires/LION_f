@@ -4,7 +4,8 @@ from setuptools import setup, find_packages
 AUTHORS = [
     ("Lalith kumar shiyam sundar", "lalith.shiyamsundar@meduniwien.ac.at"),
     ("Sebastian Gutschmayer", "sebastian.gutschmayer@meduniwien.ac.at"),
-    ("Manuel pires", "manuel.pires@meduniwien.ac.at")
+    ("Manuel pires", "manuel.pires@meduniwien.ac.at"),
+    ("Zacharias Chalampalakis", "Zacharias.Chalampalakis@meduniwien.ac.at"),
 ]
 
 # Convert the authors to a formatted string
@@ -13,7 +14,7 @@ emails_string = ", ".join([email for name, email in AUTHORS])
 
 setup(
     name='lionz',
-    version='0.1',
+    version='0.2',
     packages=find_packages(),
     install_requires=[
         'nnunetv2',
@@ -36,9 +37,10 @@ setup(
         'rich',
         'dicom2nifti',
         'emoji',
+        'dask[distributed]',
         'opencv-python',
-        'dask[distributed]'
     ],
+
     entry_points={
         'console_scripts': [
             'lionz=lionz.lionz:main'

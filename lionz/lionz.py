@@ -257,7 +257,8 @@ def main():
                                                    os.path.join(output_dir,
                                                                 os.path.basename(subject) +
                                                                 '_rotational_mip.gif'),
-                                                   rotation_step=constants.MIP_ROTATION_STEP)
+                                                   rotation_step=constants.MIP_ROTATION_STEP,
+                                                   output_spacing=constants.MIP_VOXEL_SPACING)
         spinner.text = f'{constants.ANSI_GREEN} [{i + 1}/{num_subjects}] Fused MIP of PET image and tumor mask ' \
                        f'calculated' \
                        f' for {os.path.basename(subject)}! '
