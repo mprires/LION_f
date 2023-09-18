@@ -1,8 +1,11 @@
 ![Lion-logo.png](/Images/Lion-logo.png)
 ## LION (Lesion segmentatION): Loud. Proud. Unbounded. 🦁
-[![Recommended Version](https://img.shields.io/badge/Recommended-pip%20install%20lionz%3D%3D0.2.0-9400D3.svg)](https://pypi.org/project/lionz/0.2.0/) 
+[![Recommended Version](https://img.shields.io/badge/Recommended-pip%20install%20lionz%3D%3D0.3.0-9400D3.svg)](https://pypi.org/project/lionz/0.3.0/) 
 [![Monthly Downloads](https://img.shields.io/pypi/dm/lionz?label=Downloads%20(Monthly)&color=9400D3&style=flat-square&logo=python)](https://pypi.org/project/lionz/) 
 [![Daily Downloads](https://img.shields.io/pypi/dd/lionz?label=Downloads%20(Daily)&color=9400D3&style=flat-square&logo=python)](https://pypi.org/project/lionz/)
+[![DOI](https://zenodo.org/badge/685935027.svg)](https://zenodo.org/badge/latestdoi/685935027)
+
+
 
 
 LION has roared onto the scene, revolutionizing the way we view lesion segmentation. Born from the same lineage as MOOSE 2.0, LION is laser-focused on PET tumor segmentation. Our curated models, each crafted with precision, cater to various tracers, setting the gold standard in lesion detection.
