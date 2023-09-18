@@ -179,6 +179,52 @@ FDG_data/
 - Only DICOM and NIFTI formats are supported. No other imaging formats are allowed.
 - Adhering to these guidelines is non-negotiable for the FDG model.
 
+
+
+---
+
+# 📁 LIONz Output Folder Structure for FDG Model
+
+When you run the FDG model, an output folder named `lionz-fdg-<timestamp>` will be generated in the respective subject directory. Here's a breakdown of the folder structure:
+
+```
+📂 lionz-fdg-2023-09-18-10-07-25/
+│
+├── 📂 CT
+│   └── 📄 CT_0147.nii.gz
+│
+├── 📂 PT
+│   └── 📄 PT_0147.nii.gz
+│
+├── 📂 segmentations
+│   ├── 📄 0147_no_tumor_seg.nii.gz
+│   ├── 📽 0147_rotational_mip.gif
+│   ├── 📄 dataset.json
+│   ├── 📄 plans.json
+│   └── 📄 predict_from_raw_data_args.json
+│
+├── 📂 stats
+│   └── 📄 0147_metrics.csv
+│
+└── 📂 workflow
+    ├── 📂 fdg_pet
+    │   └── 📄 fdg_pet_0000.nii.gz
+    └── 📂 fdg_pet_ct
+        ├── 📄 fdg_pet_ct_0000.nii.gz
+        └── 📄 fdg_pet_ct_0001.nii.gz
+```
+
+## 📌 Breakdown:
+
+- 📂 **CT**: Contains CT images in `.nii.gz` format.
+- 📂 **PT**: Contains PT images in `.nii.gz` format.
+- 📂 **segmentations**: Houses all segmentation-related files.
+  - 📄 NIFTI files showing segmentations.
+  - 📽 GIF files representing various views.
+  - 📄 JSON configuration and parameter files.
+- 📂 **stats**: Contains `.csv` files with metrics related to the analysis.
+- 📂 **workflow**: Houses intermediate files used/generated during the workflow, organized in subfolders for different steps.
+
 ---
 
 Harness the power of LION and elevate your PET tumor segmentation game! 🚀🦁
