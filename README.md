@@ -135,10 +135,49 @@ LION_data/
 │   └── Modality1_Subject3.nii
 │   └── Modality2_Subject3.nii
 ```
-
 ## **Naming Conventions for NIFTI** 📝
 
 Ensure you attach the correct modality as a prefix in the file name.
+
+---
+
+
+---
+
+### Dataset Organization for FDG Model
+
+For the FDG model, your dataset must be organized strictly according to the guidelines below, considering PT (Positron Emission Tomography) and CT (Computed Tomography) as the primary modalities:
+
+```
+FDG_data/
+│
+├── Patient1
+│   ├── AnyFolderNameForPT
+│   │   ├── DICOM_File1.dcm
+│   │   ├── DICOM_File2.dcm
+│   │   └── ...
+│   └── AnyFolderNameForCT
+│       ├── DICOM_File1.dcm
+│       ├── DICOM_File2.dcm
+│       └── ...
+├── Patient2
+│   ├── PT_Patient2.nii
+│   └── CT_Patient2.nii
+└── Patient3
+    ├── PT_Patient3.nii
+    └── CT_Patient3.nii
+```
+
+**Important Guidelines:**
+
+- Each patient's data must be stored in a dedicated folder.
+- For DICOM format:
+  - Patient1's example demonstrates the DICOM structure. Inside each patient's main folder, the inner folders can have any name for PT and CT modalities. Multiple DICOM files can be stored in these folders. The modality (PT or CT) will be inferred from the DICOM's modality tag.
+- For NIFTI format:
+  - Patient2 and Patient3 examples demonstrate the NIFTI structure. For these, PT and CT modalities are directly within the patient's folder with the `.nii` extension. Adjust the naming structure as per the specifics of your dataset if required.
+  
+- Only DICOM and NIFTI formats are supported. No other imaging formats are allowed.
+- Adhering to these guidelines is non-negotiable for the FDG model.
 
 ---
 
