@@ -107,7 +107,7 @@ lion(model_name, input_dir, output_dir, accelerator)
 
 ## **Directory Conventions for LION** 📂🏷️
 
-For batch mode users ⚠️, ensure your data structure and naming conventions align with the provided guidelines. LION is compatible with both DICOM and NIFTI formats. For DICOM, LION discerns the modality from tags. For NIFTI, file naming is key.
+For batch mode users ⚠️, ensure your data structure and naming conventions align with the provided guidelines. LION is compatible with both DICOM and NIFTI formats. For DICOM, LION discerns the modality from tags. For NIFTI, file naming is key. Allowed modality tags: `PT` for PET, `CT` for CT as of now.
 
 **Directory Structure** 🌳
 
