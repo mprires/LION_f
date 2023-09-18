@@ -80,6 +80,13 @@ lionz -d <path_to_image_dir> -m <model_name>
 ```
 Replace `<path_to_image_dir>` with your image directory and `<model_name>` with your chosen segmentation model's name.
 
+**Real-Life Usage Example 🌟"**
+
+To run LION using the 'fdg' model on a batch of images located in `/path/to/dummy/image/directory`, you'd simply execute:
+
+```bash
+lionz -d /path/to/dummy/image/directory -m fdg
+```
 And, if you ever find yourself needing some guidance:
 ```bash
 lionz -h
