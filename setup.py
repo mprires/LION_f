@@ -2,9 +2,9 @@ from setuptools import setup, find_packages
 
 # Authors and their corresponding emails
 AUTHORS = [
-    ("Lalith kumar shiyam sundar", "lalith.shiyamsundar@meduniwien.ac.at"),
+    ("Lalith Kumar Shiyam Sundar", "lalith.shiyamsundar@meduniwien.ac.at"),
     ("Sebastian Gutschmayer", "sebastian.gutschmayer@meduniwien.ac.at"),
-    ("Manuel pires", "manuel.pires@meduniwien.ac.at"),
+    ("Manuel Pires", "manuel.pires@meduniwien.ac.at"),
     ("Zacharias Chalampalakis", "Zacharias.Chalampalakis@meduniwien.ac.at"),
 ]
 
