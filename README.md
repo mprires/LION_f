@@ -128,9 +128,7 @@ Ensure you attach the correct modality as a prefix in the file name.
 
 ---
 
-Harness the power of LION and elevate your PET tumor segmentation game
-
-! 🚀🦁
+Harness the power of LION and elevate your PET tumor segmentation game! 🚀🦁
 
 Remember, the LION team is here to support you every step of the way. Should you need any assistance or if you'd like to provide feedback, don't hesitate to reach out to our dedicated support team in discord.
 
