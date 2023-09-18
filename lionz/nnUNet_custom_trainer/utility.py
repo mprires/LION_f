@@ -8,8 +8,7 @@ def add_custom_trainers_to_local_nnunetv2():
     site_packages = site.getsitepackages()[0]
 
     source_file_path = os.path.join(site_packages, 'lionz', 'nnUNet_custom_trainer', 'LION_custom_trainers.py')
-    target_file_path = os.path.join(site_packages, 'nnunetv2', 'training', 'nnUNetTrainer', 'variants',
-                                    'LION_custom_trainers.py')
+    target_file_path = os.path.join(site_packages, 'nnunetv2', 'training', 'nnUNetTrainer', 'variants', 'LION_custom_trainers.py')
 
     # Check if the file exists
     if not os.path.exists(source_file_path):

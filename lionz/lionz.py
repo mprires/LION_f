@@ -193,6 +193,10 @@ def main():
                 os.path.isdir(os.path.join(parent_folder, d))]
     lion_compliant_subjects = input_validation.select_lion_compliant_subjects(subjects, modalities)
 
+    num_subjects = len(lion_compliant_subjects)
+    if num_subjects < 1:
+        print(f'{constants.ANSI_RED} {emoji.emojize(":cross_mark:")} No lion compliant subject found to continue!{constants.ANSI_RED}')
+        return
 
     # -------------------------------------------------
     # RUN PREDICTION ONLY FOR MOOSE COMPLIANT SUBJECTS
@@ -208,7 +212,7 @@ def main():
     spinner = Halo(text=' Initiating', spinner='dots')
     spinner.start()
     start_total_time = time.time()
-    num_subjects = len(lion_compliant_subjects)
+
     for i, subject in enumerate(lion_compliant_subjects):
         # SETTING UP DIRECTORY STRUCTURE
         spinner.text = f'[{i + 1}/{num_subjects}] Setting up directory structure for {os.path.basename(subject)}...'
