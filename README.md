@@ -122,9 +122,11 @@ LION_data/
 │   └── Modality2
 │       └── File2.dcm
 ├── Subject2
-│   └── Modality_Subject2.nii
+│   └── Modality1_Subject2.nii
+│   └── Modality2_Subject2.nii
 └── Subject3
-    └── Modality_Subject3.nii
+│   └── Modality1_Subject3.nii
+│   └── Modality2_Subject3.nii
 ```
 
 ## **Naming Conventions for NIFTI** 📝
