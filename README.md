@@ -18,6 +18,8 @@ LION has roared onto the scene, revolutionizing the way we view lesion segmentat
 
 Dive into the exciting world of PET tumor segmentation with LION and experience the future today!
 
+🔔 **Important Notification:** As of now, the LION tool is optimized and validated for FDG imaging. Development for PSMA imaging is ongoing and will be available soon. We appreciate your patience and understanding. Stay tuned for updates! 🔔
+
 ---
 
 ## **Requirements** ✅
