@@ -195,7 +195,7 @@ def main():
 
     num_subjects = len(lion_compliant_subjects)
     if num_subjects < 1:
-        print(f'{constants.ANSI_RED} {emoji.emojize(":cross_mark:")} No lion compliant subject found to continue!{constants.ANSI_RED}')
+        print(f'{constants.ANSI_RED} {emoji.emojize(":cross_mark:")} No lion compliant subject found to continue!{constants.ANSI_RESET} {emoji.emojize(":light_bulb:")} See: https://github.com/LalithShiyam/LION#directory-conventions-for-lion-%EF%B8%8F')
         return
 
     # -------------------------------------------------
