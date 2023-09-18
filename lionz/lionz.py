@@ -153,7 +153,6 @@ def main():
     modalities = display.expectations(model_name)
     custom_trainer_status = add_custom_trainers_to_local_nnunetv2()
     logging.info('- Custom trainer: ' + custom_trainer_status)
-    print(f' {custom_trainer_status}')
     accelerator = check_cuda()
     inputs_valid = input_validation.validate_inputs(parent_folder, model_name)
     if not inputs_valid:
@@ -321,7 +320,8 @@ def lion(model_name: str, input_dir: str, seg_output_dir: str, accelerator: str)
     """
     model_path = constants.NNUNET_RESULTS_FOLDER
     modalities = display.expectations(model_name)
-
+    custom_trainer_status = add_custom_trainers_to_local_nnunetv2()
+    logging.info('- Custom trainer: ' + custom_trainer_status)
     file_utilities.create_directory(model_path)
     download.model(model_name, model_path)
 
