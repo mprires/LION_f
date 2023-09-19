@@ -88,7 +88,7 @@ def predict_tumor(workflow_dir: str, model_name: str, output_dir: str, accelerat
         current_workflow_dir = os.path.join(workflow_dir, f"{model_name}_{workflow_name}")
         trainer = [model["trainer"] for model in MODELS[model_name] if task_number in model["directory"]][0]
         command = f'nnUNetv2_predict -i {current_workflow_dir} -o {output_dir} -d {task_number} -c 3d_fullres' \
-                  f' -f all -tr {trainer} --disable_tta -device {accelerator} -npp 1 -nps 1'
+                  f' -f all -tr {trainer} --disable_tta -device {accelerator}'
         os.environ["nnUNet_results"] = NNUNET_RESULTS_FOLDER
         subprocess.run(command, shell=True, stdout=subprocess.DEVNULL, env=os.environ)
 
