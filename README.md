@@ -121,19 +121,20 @@ For batch mode users ⚠️, ensure your data structure and naming conventions a
 Organize your dataset as follows:
 
 ```
-LION_data/
+📂 LION_data/
 │
-├── Subject1
-│   ├── Modality1
-│   │   └── File1.dcm
-│   └── Modality2
-│       └── File2.dcm
-├── Subject2
-│   └── Modality1_Subject2.nii
-│   └── Modality2_Subject2.nii
-└── Subject3
-│   └── Modality1_Subject3.nii
-│   └── Modality2_Subject3.nii
+├── 📁 Subject1
+│   ├── 📁 Modality1
+│   │   └── 📄 File1.dcm
+│   └── 📁 Modality2
+│       └── 📄 File2.dcm
+├── 📁 Subject2
+│   └── 📄 Modality1_Subject2.nii
+│   └── 📄 Modality2_Subject2.nii
+└── 📁 Subject3
+    └── 📄 Modality1_Subject3.nii
+    └── 📄 Modality2_Subject3.nii
+
 ```
 ## **Naming Conventions for NIFTI** 📝
 
@@ -149,23 +150,23 @@ Ensure you attach the correct modality as a prefix in the file name.
 For the FDG model, your dataset must be organized strictly according to the guidelines below, considering PT (Positron Emission Tomography) and CT (Computed Tomography) as the primary modalities:
 
 ```
-FDG_data/
+📂 FDG_data/
 │
-├── Patient1
-│   ├── AnyFolderNameForPT
-│   │   ├── DICOM_File1.dcm
-│   │   ├── DICOM_File2.dcm
+├── 📁 Patient1
+│   ├── 📁 AnyFolderNameForPT
+│   │   ├── 📄 DICOM_File1.dcm
+│   │   ├── 📄 DICOM_File2.dcm
 │   │   └── ...
-│   └── AnyFolderNameForCT
-│       ├── DICOM_File1.dcm
-│       ├── DICOM_File2.dcm
+│   └── 📁 AnyFolderNameForCT
+│       ├── 📄 DICOM_File1.dcm
+│       ├── 📄 DICOM_File2.dcm
 │       └── ...
-├── Patient2
-│   ├── PT_Patient2.nii
-│   └── CT_Patient2.nii
-└── Patient3
-    ├── PT_Patient3.nii
-    └── CT_Patient3.nii
+├── 📁 Patient2
+│   ├── 📄 PT_Patient2.nii
+│   └── 📄 CT_Patient2.nii
+└── 📁 Patient3
+    ├── 📄 PT_Patient3.nii.gz
+    └── 📄 CT_Patient3.nii.gz
 ```
 
 **Important Guidelines:**
