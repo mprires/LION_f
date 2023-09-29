@@ -8,7 +8,7 @@ def add_custom_trainers_to_local_nnunetv2():
     # Locate the site-packages directory
     site_packages = site.getsitepackages()[0]
     
-     if platform.system() == 'Windows':
+    if platform.system() == 'Windows':
         site_packages = os.path.join(site_packages, 'Lib', 'site-packages')
     
     source_file_path = os.path.join(site_packages, 'lionz', 'nnUNet_custom_trainer', 'LION_custom_trainers.py')
