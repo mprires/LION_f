@@ -111,7 +111,7 @@ TRACER_WORKFLOWS = {
 MODELS = {
     "fdg": [
         {
-            "url": "https://lionz.s3.eu.cloud-object-storage.appdomain.cloud/clin_pt_fdg_ct_2000epochs.zip",
+            "url": "https://ucd-emic-muv.s3.us-west-2.amazonaws.com/lion/clin_pt_fdg_ct_2000epochs.zip",
             "filename": "Dataset789_Tumors_all_organs_LION.zip",
             "directory": "Dataset789_Tumors_all_organs_LION",
             "trainer": "nnUNetTrainerDA5_2000epochs",
@@ -119,7 +119,7 @@ MODELS = {
             "multilabel_prefix": "fdg_tumor_01_"
         },
         {
-            "url": "https://lionz.s3.eu.cloud-object-storage.appdomain.cloud/clin_pt_fdg_tumor_16082023.zip",
+            "url": "https://ucd-emic-muv.s3.us-west-2.amazonaws.com/lion/clin_pt_fdg_tumor_16082023.zip",
             "filename": "Dataset804_Tumors_all_organs.zip",
             "directory": "Dataset804_Tumors_all_organs",
             "trainer": "nnUNetTrainerDA5",
