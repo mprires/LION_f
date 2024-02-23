@@ -97,6 +97,7 @@ TRACER_WORKFLOWS = {
         'reference_modality': 'PT',  # You can change this for psma if needed
         'workflows': {
             'pet': {
+                'tumor_label': 11,  # Adjust this if the tumor label is different for the 'pet' workflow
                 'channels': {
                     'PT': '0000.nii.gz'
                 }
