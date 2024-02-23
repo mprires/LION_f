@@ -21,11 +21,12 @@ from scipy.ndimage import label, sum as nd_sum
 from lionz import constants
 
 # List of available models in the LIONZ application
-AVAILABLE_MODELS = ["fdg", "psma"]
+AVAILABLE_MODELS = ["fdg", "psma", "mpx"]
 
 # Dictionary of expected modalities for each model in the LIONZ application
 EXPECTED_MODALITIES = {"fdg": ["PT", "CT"],
-                       "psma": ["PT"]}
+                       "psma": ["PT"],
+                       "mpx": ["PT"]}
 
 """
 TRACER_WORKFLOWS Dictionary Structure:
@@ -91,6 +92,16 @@ TRACER_WORKFLOWS = {
                 }
             }
         }
+    },  
+    'mpx': {
+        'reference_modality': 'PT',  # You can change this for psma if needed
+        'workflows': {
+            'pet': {
+                'channels': {
+                    'PT': '0000.nii.gz'
+                }
+            }
+        }
     }
 }
 
@@ -137,7 +148,16 @@ MODELS = {
             "multilabel_prefix": "PLACEHOLDER_PREFIX"
         }
     ],
-    # Add more tracers as needed, following the same structure
+    "mpx": [  
+        {
+            "url": "https://ucd-emic-muv.s3.us-west-2.amazonaws.com/lion/clin_pt_fdg_tumor_16082023.zip",
+            "filename": "Dataset804_Tumors_all_organs.zip",
+            "directory": "Dataset804_Tumors_all_organs",
+            "trainer": "nnUNetTrainerDA5",
+            "voxel_spacing": [3, 3, 3],
+            "multilabel_prefix": "fdg_tumor_"
+        }
+    ],
 }
 
 
@@ -254,6 +274,14 @@ RULES = {
             'action_on_true': 'continue',
             'action_on_false': 'continue'
         }
+    },
+  
+    "mpx": {
+        'pet': {
+            'rule_func': (has_label_above_threshold, {"threshold": 10}),
+            'action_on_true': 'continue',
+            'action_on_false': 'continue'
+        }
     }
-    # Add more rules for different tracers and workflows as necessary.
+    
 }
