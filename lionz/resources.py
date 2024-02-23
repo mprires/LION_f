@@ -196,6 +196,8 @@ def map_model_name_to_task_number(model_name: str) -> dict:
     """
     if model_name == "fdg":
         return {'pet_ct': '789', 'pet': '804'}
+    elif model_name == "mpx":
+        return {'pet': '804'}
     elif model_name == "psma":
         return {'workflow_name_placeholder': '444'}  # replace 'workflow_name_placeholder' with the actual workflow name
     else:
