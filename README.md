@@ -269,9 +269,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/LalithShiyam"><img src="https://avatars.githubusercontent.com/u/48599863?v=4?s=100" width="100px;" alt="Sebastian Gutschmayer"/><br /><sub><b>Manuel Pires</b></sub></a><br /><a href="https://github.com/LalithShiyam/LION/commits?author=LalithShiyam" title="Code">💻</a></td>  
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/LalithShiyam"><img src="https://avatars.githubusercontent.com/u/48599863?v=4?s=100" width="100px;" alt="Lalith Kumar Shiyam Sundar"/><br /><sub><b>Lalith Kumar Shiyam Sundar</b></sub></a><br /><a href="https://github.com/LalithShiyam/LION/commits?author=LalithShiyam" title="Code">💻</a></td>  
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mprires"><img src="https://avatars.githubusercontent.com/u/48754309?v=4?s=100" width="100px;" alt="Manuel Pires"/><br /><sub><b>Manuel Pires</b></sub></a><br /><a href="https://github.com/LalithShiyam/LION/commits?author=mprires" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Keyn34"><img src="https://avatars.githubusercontent.com/u/87951050?v=4?s=100" width="100px;" alt="Sebastian Gutschmayer"/><br /><sub><b>Manuel Pires</b></sub></a><br /><a href="https://github.com/LalithShiyam/LION/commits?author=Keyn34" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Keyn34"><img src="https://avatars.githubusercontent.com/u/87951050?v=4?s=100" width="100px;" alt="Sebastian Gutschmayer"/><br /><sub><b>Sebastian Gutschmayer</b></sub></a><br /><a href="https://github.com/LalithShiyam/LION/commits?author=Keyn34" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
