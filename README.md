@@ -1,4 +1,4 @@
-![Lion-logo.png](/Images/Lion-logo.png)
+![Lion-logo.png](/Images/lion.png)
 ## LION (Lesion segmentatION): Loud. Proud. Unbounded. 🦁
 [![Recommended Version](https://img.shields.io/badge/Recommended-pip%20install%20lionz%3D%3D0.4.0-9400D3.svg)](https://pypi.org/project/lionz/0.4.0/) 
 [![Monthly Downloads](https://img.shields.io/pypi/dm/lionz?label=Downloads%20(Monthly)&color=9400D3&style=flat-square&logo=python)](https://pypi.org/project/lionz/) 
