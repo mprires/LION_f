@@ -1,4 +1,7 @@
 ![Lion-logo.png](/Images/lion.png)
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 ## LION (Lesion segmentatION): Loud. Proud. Unbounded. 🦁
 [![Recommended Version](https://img.shields.io/badge/Recommended-pip%20install%20lionz%3D%3D0.4.0-9400D3.svg)](https://pypi.org/project/lionz/0.4.0/) 
 [![Monthly Downloads](https://img.shields.io/pypi/dm/lionz?label=Downloads%20(Monthly)&color=9400D3&style=flat-square&logo=python)](https://pypi.org/project/lionz/) 
@@ -255,3 +258,25 @@ In the expansive realm of science and mathematics, 'Z' is frequently invoked as 
 So, the next time you stumble upon a 'Z' in any of our package names, let it serve as a reminder of the zest for exploration and the spirit of discovery that fuels us. With QIMP, you're not merely downloading a tool; you're aligning yourself with a movement that aims to redefine the landscape of medical image processing. Let's soar into the realms of the 'Z' dimension, side by side! 🚀
 
 ---
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mprires"><img src="https://avatars.githubusercontent.com/u/48754309?v=4?s=100" width="100px;" alt="Manuel Pires"/><br /><sub><b>Manuel Pires</b></sub></a><br /><a href="https://github.com/LalithShiyam/LION/commits?author=mprires" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
