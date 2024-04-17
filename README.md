@@ -1,6 +1,6 @@
 ![Lion-logo.png](/Images/lion.png)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 ## LION (Lesion segmentatION): Loud. Proud. Unbounded. 🦁
 [![Recommended Version](https://img.shields.io/badge/Recommended-pip%20install%20lionz%3D%3D0.4.0-9400D3.svg)](https://pypi.org/project/lionz/0.4.0/) 
@@ -269,7 +269,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tbody>
     <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/LalithShiyam"><img src="https://avatars.githubusercontent.com/u/48599863?v=4?s=100" width="100px;" alt="Sebastian Gutschmayer"/><br /><sub><b>Manuel Pires</b></sub></a><br /><a href="https://github.com/LalithShiyam/LION/commits?author=LalithShiyam" title="Code">💻</a></td>  
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mprires"><img src="https://avatars.githubusercontent.com/u/48754309?v=4?s=100" width="100px;" alt="Manuel Pires"/><br /><sub><b>Manuel Pires</b></sub></a><br /><a href="https://github.com/LalithShiyam/LION/commits?author=mprires" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Keyn34"><img src="https://avatars.githubusercontent.com/u/87951050?v=4?s=100" width="100px;" alt="Sebastian Gutschmayer"/><br /><sub><b>Manuel Pires</b></sub></a><br /><a href="https://github.com/LalithShiyam/LION/commits?author=Keyn34" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
