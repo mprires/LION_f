@@ -11,11 +11,10 @@
 
 
 
-LION has roared onto the scene, revolutionizing the way we view lesion segmentation. Born from the same lineage as MOOSE 2.0, LION is laser-focused on PET tumor segmentation. Our curated models, each crafted with precision, cater to various tracers, setting the gold standard in lesion detection.
+LION has roared onto the scene, revolutionizing the way we view lesion segmentation. Born from the same lineage as MOOSE 2.0, LION is laser-focused on tumor segmentation. Our curated models, each crafted with precision, cater to various tracers, setting the gold standard in lesion detection.
 
-✨ **Exclusive Engineering Paradigm**: With LION, segmentation is not just a task; it's an orchestrated dance of models. Define workflows for each model, mix and match channels as some models thrive on PET/CT while others are optimized for just PET. Run them in a sequence that maximizes output and efficiency. This unique trait of LION lets you tailor the process to your exact needs, making lesion segmentation an art of precision.
+✨ **Exclusive Engineering Paradigm**: With LION, segmentation is not just a task; it's an orchestrated dance of models. Define workflows for each model, mix and match channels as some models thrive on PET/CT while others are optimized for just PET or CT. Run them in a sequence that maximizes output and efficiency. This unique trait of LION lets you tailor the process to your exact needs, making lesion segmentation an art of precision.
 
-🌐 **Autopet-fueled Power**: LION has been trained on 1014 Autopet datasets. This vast and focused dataset empowers LION to spot and segment lesions with exceptional accuracy.
 
 🔔 **Flexibility Unleashed**: Whether you're looking for a command-line tool for batch processing or a library package for your Python projects, LION has you covered. Seamlessly integrate it into your work environment and watch it shine.
 
