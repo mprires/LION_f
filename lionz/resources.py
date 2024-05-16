@@ -21,12 +21,11 @@ from scipy.ndimage import label, sum as nd_sum
 from lionz import constants
 
 # List of available models in the LIONZ application
-AVAILABLE_MODELS = ["fdg", "psma", "mpx"]
+AVAILABLE_MODELS = ["fdg", "psma"]
 
 # Dictionary of expected modalities for each model in the LIONZ application
 EXPECTED_MODALITIES = {"fdg": ["PT", "CT"],
-                       "psma": ["PT"],
-                       "mpx": ["PT"]}
+                       "psma": ["PT"]}
 
 """
 TRACER_WORKFLOWS Dictionary Structure:
@@ -75,29 +74,19 @@ TRACER_WORKFLOWS = {
                     'CT': '0001.nii.gz'
                 }
             },
-            'pet': {
-                'tumor_label': 11,  # Adjust this if the tumor label is different for the 'pet' workflow
-                'channels': {
-                    'PT': '0000.nii.gz'
-                }
-            }
+             'pet': {
+                 'tumor_label': 11,  # Adjust this if the tumor label is different for the 'pet' workflow
+                 'channels': {
+                     'PT': '0000.nii.gz'
+                 }
+             }
         }
     },
     'psma': {
         'reference_modality': 'PT',  # You can change this for psma if needed
         'workflows': {
             'pet': {
-                'channels': {
-                    'PT': '0000.nii.gz'
-                }
-            }
-        }
-    },  
-    'mpx': {
-        'reference_modality': 'PT',  # You can change this for psma if needed
-        'workflows': {
-            'pet': {
-                'tumor_label': 11,  # Adjust this if the tumor label is different for the 'pet' workflow
+                'tumor_label': 6,
                 'channels': {
                     'PT': '0000.nii.gz'
                 }
@@ -123,42 +112,39 @@ TRACER_WORKFLOWS = {
 MODELS = {
     "fdg": [
         {
-            "url": "https://ucd-emic-muv.s3.us-west-2.amazonaws.com/lion/clin_pt_fdg_ct_2000epochs.zip",
-            "filename": "Dataset789_Tumors_all_organs_LION.zip",
-            "directory": "Dataset789_Tumors_all_organs_LION",
+            "url": "https://enhance-pet.s3.eu-central-1.amazonaws.com/lion/clin_pt_fdg_ct_2000epochs.zip",
+            "filename": "Dataset804_Tumors_all_organs_LION.zip",
+            "directory": "Dataset804_Tumors_all_organs_LION",
             "trainer": "nnUNetTrainerDA5_2000epochs",
             "voxel_spacing": [3, 3, 3],
-            "multilabel_prefix": "fdg_tumor_01_"
+            "multilabel_prefix": "fdg_tumor_01_",
+            "plans": "nnUNetPlans",
+            "configuration": "3d_fullres"
         },
         {
-            "url": "https://ucd-emic-muv.s3.us-west-2.amazonaws.com/lion/clin_pt_fdg_tumor_16082023.zip",
-            "filename": "Dataset804_Tumors_all_organs.zip",
-            "directory": "Dataset804_Tumors_all_organs",
+            "url": "https://enhance-pet.s3.eu-central-1.amazonaws.com/lion/clin_pt_fdg_cancer_only_DA_30102023.zip",
+            "filename": "Dataset789_Tumors_all_organs.zip",
+            "directory": "Dataset789_Tumors_all_organs",
             "trainer": "nnUNetTrainerDA5",
             "voxel_spacing": [3, 3, 3],
-            "multilabel_prefix": "fdg_tumor_"
+            "multilabel_prefix": "fdg_tumor_",
+            "plans": "nnUNetPlans",
+            "configuration": "3d_fullres"
         }
     ],
     "psma": [
         {
-            "url": "PLACEHOLDER_URL_FOR_MODEL",
-            "filename": "PLACEHOLDER_FILENAME",
-            "directory": "PLACEHOLDER_DIRECTORY",
-            "trainer": "PLACEHOLDER_TRAINER",
-            "voxel_spacing": ["PLACEHOLDER_X", "PLACEHOLDER_Y", "PLACEHOLDER_Z"],
-            "multilabel_prefix": "PLACEHOLDER_PREFIX"
-        }
-    ],
-    "mpx": [  
-        {
-            "url": "https://ucd-emic-muv.s3.us-west-2.amazonaws.com/lion/clin_pt_fdg_tumor_16082023.zip",
-            "filename": "Dataset804_Tumors_all_organs.zip",
-            "directory": "Dataset804_Tumors_all_organs",
-            "trainer": "nnUNetTrainerDA5",
+            "url": "https://enhance-pet.s3.eu-central-1.amazonaws.com/lion/clin_pt_resenc_PSMA550_30042024.zip",
+            "filename": "Dataset711_PSMA.zip",
+            "directory": "Dataset711_PSMA",
+            "trainer": "nnUNetTrainer",
             "voxel_spacing": [3, 3, 3],
-            "multilabel_prefix": "fdg_tumor_"
+            "multilabel_prefix": "psma_tumor",
+            "plans": "nnUNetResEncUNetLPlans",
+            "configuration": "3d_fullres"
         }
     ],
+    # Add more tracers as needed, following the same structure
 }
 
 
@@ -195,11 +181,9 @@ def map_model_name_to_task_number(model_name: str) -> dict:
     :return: A dictionary of workflows and their associated task numbers.
     """
     if model_name == "fdg":
-        return {'pet_ct': '789', 'pet': '804'}
-    elif model_name == "mpx":
-        return {'pet': '804'}
+        return {'pet_ct': '804', 'pet': '789'}
     elif model_name == "psma":
-        return {'workflow_name_placeholder': '444'}  # replace 'workflow_name_placeholder' with the actual workflow name
+        return {'pet': '711'}  # replace 'workflow_name_placeholder' with the actual workflow name
     else:
         raise Exception(f"Error: The model name '{model_name}' is not valid.")
 
@@ -277,14 +261,6 @@ RULES = {
             'action_on_true': 'continue',
             'action_on_false': 'continue'
         }
-    },
-  
-    "mpx": {
-        'pet': {
-            'rule_func': (has_label_above_threshold, {"threshold": 10}),
-            'action_on_true': 'continue',
-            'action_on_false': 'continue'
-        }
     }
-    
+    # Add more rules for different tracers and workflows as necessary.
 }
