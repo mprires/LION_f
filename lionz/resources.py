@@ -21,11 +21,12 @@ from scipy.ndimage import label, sum as nd_sum
 from lionz import constants
 
 # List of available models in the LIONZ application
-AVAILABLE_MODELS = ["fdg", "psma"]
+AVAILABLE_MODELS = ["fdg", "psma", "mpx"]
 
 # Dictionary of expected modalities for each model in the LIONZ application
 EXPECTED_MODALITIES = {"fdg": ["PT", "CT"],
-                       "psma": ["PT"]}
+                       "psma": ["PT"],
+                       "mpx": ["PT"]}
 
 """
 TRACER_WORKFLOWS Dictionary Structure:
@@ -92,6 +93,17 @@ TRACER_WORKFLOWS = {
                 }
             }
         }
+    },
+    'mpx': {
+        'reference_modality': 'PT',  # You can change this for psma if needed
+        'workflows': {
+            'pet': {
+                'tumor_label': 11,  # Adjust this if the tumor label is different for the 'pet' workflow
+                'channels': {
+                    'PT': '0000.nii.gz'
+                }
+            }
+        }
     }
 }
 
@@ -123,8 +135,8 @@ MODELS = {
         },
         {
             "url": "https://enhance-pet.s3.eu-central-1.amazonaws.com/lion/clin_pt_fdg_cancer_only_DA_30102023.zip",
-            "filename": "Dataset789_Tumors_all_organs.zip",
-            "directory": "Dataset789_Tumors_all_organs",
+            "filename": "Dataset789_Tumors.zip",
+            "directory": "Dataset789_Tumors",
             "trainer": "nnUNetTrainerDA5",
             "voxel_spacing": [3, 3, 3],
             "multilabel_prefix": "fdg_tumor_",
@@ -144,6 +156,19 @@ MODELS = {
             "configuration": "3d_fullres"
         }
     ],
+"mpx": [
+        {
+            "url": "https://enhance-pet.s3.eu-central-1.amazonaws.com/lion/clin_pt_fdg_cancer_only_DA_30102023.zip",
+            "filename": "Dataset789_Tumors.zip",
+            "directory": "Dataset789_Tumors",
+            "trainer": "nnUNetTrainerDA5",
+            "voxel_spacing": [3, 3, 3],
+            "multilabel_prefix": "fdg_tumor_",
+            "plans": "nnUNetPlans",
+            "configuration": "3d_fullres"
+        }
+    ],
+
     # Add more tracers as needed, following the same structure
 }
 
@@ -183,7 +208,11 @@ def map_model_name_to_task_number(model_name: str) -> dict:
     if model_name == "fdg":
         return {'pet_ct': '804', 'pet': '789'}
     elif model_name == "psma":
-        return {'pet': '711'}  # replace 'workflow_name_placeholder' with the actual workflow name
+        return {'pet': '711'}
+    elif model_name == 'mpx':
+        return {'pet': '789'}
+    elif model_name == "tracer":
+        return {'workflow_name_place_holder': '444'} # replace 'workflow_name_placeholder' with the actual workflow name
     else:
         raise Exception(f"Error: The model name '{model_name}' is not valid.")
 
