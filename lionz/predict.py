@@ -92,7 +92,7 @@ def predict_tumor(workflow_dir: str, model_name: str, output_dir: str, accelerat
         command = f'nnUNetv2_predict -i {current_workflow_dir} -o {output_dir} -d {task_number} -c {configuration}' \
                   f' -f all -tr {trainer} --disable_tta -device {accelerator} -p {plans}'
         os.environ["nnUNet_results"] = NNUNET_RESULTS_FOLDER
-        subprocess.run(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(command, shell=True)
 
 
         mask_path = get_files(output_dir, '.nii.gz')[0]
