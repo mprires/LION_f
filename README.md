@@ -96,8 +96,9 @@ LION is also equipped with a thresholding feature to refine your segmentations. 
 **Important:** Thresholding is only supported with DICOM or SUV NIfTI inputs! If you don't require thresholding, feel free to use any LION-compliant input.
 
 Here's how you can apply thresholding:
+```bash
 lionz -d /path/to/dummy/image/directory -m fdg -t
-
+```
 And, if you ever find yourself needing some guidance:
 ```bash
 lionz -h
