@@ -73,7 +73,7 @@ def non_nifti_to_nifti(input_path: str, output_directory: str = None) -> None:
     if os.path.isdir(input_path):
         dicom_info = create_dicom_lookup(input_path)
         nifti_dir = dcm2niix(input_path)
-        rename_nifti_files(nifti_dir, dicom_info)
+        rename_and_convert_nifti_files(nifti_dir, dicom_info)
         return
 
     # Processing a file
@@ -192,7 +192,7 @@ def create_dicom_lookup(dicom_dir: str) -> dict:
     for filename in os.listdir(dicom_dir):
         full_path = os.path.join(dicom_dir, filename)
         if is_dicom_file(full_path):
-            ds = pydicom.dcmread(full_path)
+            ds = pydicom.dcmread(full_path, force=True)
 
             series_number = ds.SeriesNumber if 'SeriesNumber' in ds else None
             series_description = ds.SeriesDescription if 'SeriesDescription' in ds else None
@@ -200,6 +200,20 @@ def create_dicom_lookup(dicom_dir: str) -> dict:
             protocol_name = ds.ProtocolName if 'ProtocolName' in ds else None
             series_instance_UID = ds.SeriesInstanceUID if 'SeriesInstanceUID' in ds else None
             modality = ds.Modality
+            if modality == "PT":
+                suv_parameters = {'weight[kg]': ds.PatientWeight,
+                          'total_dose[MBq]': (
+                                      float(ds.RadiopharmaceuticalInformationSequence[0].RadionuclideTotalDose) / 1000000)}
+                units = ds.Units
+                if units == "CNTS":
+                    suv_converstion_factor = ds[0x7053, 0x1000].value
+
+                else:
+                    suv_converstion_factor = None
+            else:
+                suv_parameters = None
+                units = None
+                suv_converstion_factor = None
 
             if series_number is not None:
                 base_filename = remove_accents(series_number)
@@ -212,12 +226,12 @@ def create_dicom_lookup(dicom_dir: str) -> dict:
             else:
                 anticipated_filename = f"{remove_accents(series_instance_UID)}.nii"
 
-            dicom_info[anticipated_filename] = modality
+            dicom_info[anticipated_filename] = (modality, suv_parameters, units, suv_converstion_factor)
 
     return dicom_info
 
 
-def rename_nifti_files(nifti_dir: str, dicom_info: dict) -> None:
+def rename_and_convert_nifti_files(nifti_dir: str, dicom_info: dict) -> None:
     """
     Rename NIfTI files based on a lookup dictionary.
 
@@ -229,10 +243,13 @@ def rename_nifti_files(nifti_dir: str, dicom_info: dict) -> None:
     """
     for filename in os.listdir(nifti_dir):
         if filename.endswith('.nii'):
-            modality = dicom_info.get(filename, '')
+            modality, suv_parameters, units, suv_conversion_factor = dicom_info.get(filename, (None, None, None, None))
             if modality:
                 new_filename = f"{modality}_{filename}"
-                os.rename(os.path.join(nifti_dir, filename), os.path.join(nifti_dir, new_filename))
+                file_path = os.path.join(nifti_dir, filename)
+                if suv_parameters:
+                    convert_bq_to_suv(file_path, file_path, suv_parameters, units, suv_conversion_factor)
+                os.rename(file_path, os.path.join(nifti_dir, new_filename))
                 del dicom_info[filename]
 
 
@@ -242,3 +259,30 @@ def copy_and_compress_nifti(src_path, dest_path):
     """
     img = nib.load(src_path)
     nib.save(img, dest_path)
+
+
+def convert_bq_to_suv(bq_image: str, out_suv_image: str, suv_parameters: dict, image_unit: str,
+                      suv_scale_factor) -> None:
+    """
+    Convert a becquerel PET image to SUV image
+    :param bq_image: Path to a becquerel PET image to convert to SUV image (can be NRRD, NIFTI, ANALYZE
+    :param out_suv_image: Name of the SUV image to be created (preferrably with a path)
+    :param suv_parameters: A dictionary with the SUV parameters (weight in kg, dose in mBq)
+    :param image_unit: A string indicating the unit of the PET image ('CNTS' or 'BQML')
+    :param suv_scale_factor: A number contained in the dicom tag [7053, 1000] for converting CNTS PT images to SUV ones
+    """
+
+    if image_unit == 'BQML':
+        total_dose = suv_parameters["total_dose[MBq]"]
+        suv_denominator = (total_dose / suv_parameters["weight[kg]"]) * 1000  # Units in kBq/mL
+        suv_convertor = 1 / suv_denominator
+        cmd_to_run = f"c3d {bq_image} -scale {suv_convertor} -o {out_suv_image}"
+        os.system(cmd_to_run)
+
+    elif image_unit == 'CNTS':
+        suv_convertor = float(suv_scale_factor)
+        cmd_to_run = f"c3d {bq_image} -scale {suv_convertor} -o {out_suv_image}"
+        os.system(cmd_to_run)
+
+    else:
+        print('Please specify a conversion factor.')

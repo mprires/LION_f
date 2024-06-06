@@ -70,6 +70,7 @@ TRACER_WORKFLOWS = {
         'workflows': {
             'pet_ct': {
                 'tumor_label': 11,
+                'threshold': 0,
                 'channels': {
                     'PT': '0000.nii.gz',
                     'CT': '0001.nii.gz'
@@ -77,6 +78,7 @@ TRACER_WORKFLOWS = {
             },
              'pet': {
                  'tumor_label': 11,  # Adjust this if the tumor label is different for the 'pet' workflow
+                 'threshold': 4,
                  'channels': {
                      'PT': '0000.nii.gz'
                  }
@@ -88,6 +90,7 @@ TRACER_WORKFLOWS = {
         'workflows': {
             'pet': {
                 'tumor_label': 6,
+                'threshold': 1,
                 'channels': {
                     'PT': '0000.nii.gz'
                 }
@@ -99,6 +102,7 @@ TRACER_WORKFLOWS = {
         'workflows': {
             'pet': {
                 'tumor_label': 11,  # Adjust this if the tumor label is different for the 'pet' workflow
+                'threshold': 4,
                 'channels': {
                     'PT': '0000.nii.gz'
                 }
