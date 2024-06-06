@@ -21,7 +21,7 @@ import nibabel as nib
 import numpy as np
 
 from lionz.file_utilities import get_files
-from lionz.image_processing import ImageResampler
+from lionz.image_processing import ImageResampler, threshold_segmentation
 from lionz.resources import MODELS, map_model_name_to_task_number, RULES, TRACER_WORKFLOWS
 from lionz.constants import INTERPOLATION, NNUNET_RESULTS_FOLDER
 
@@ -73,7 +73,7 @@ class ImagePreprocessor:
                         self._resample_image_to_reference(image, max_voxel_image, target_voxel_spacing)
 
 
-def predict_tumor(workflow_dir: str, model_name: str, output_dir: str, accelerator: str):
+def predict_tumor(workflow_dir: str, model_name: str, output_dir: str, accelerator: str, thresholding: bool):
     # Preprocess the images
     workflowPreprocessor = ImagePreprocessor(workflow_dir, MODELS)
     workflowPreprocessor.preprocess_workflow(model_name)
@@ -103,6 +103,10 @@ def predict_tumor(workflow_dir: str, model_name: str, output_dir: str, accelerat
         prediction_data = prediction.get_fdata()
         prediction_data[prediction_data != tumor_label] = 0
         prediction_data[prediction_data == tumor_label] = 1
+        if thresholding:
+            pet_image = get_files(current_workflow_dir, '.nii.gz')[0]
+            threshold_value = TRACER_WORKFLOWS[model_name]['workflows'][workflow_name]["threshold"]
+            prediction_data = threshold_segmentation(pet_image, prediction_data, threshold_value)
         new_prediction = nib.Nifti1Image(prediction_data, prediction.affine, prediction.header)
         nib.save(new_prediction, mask_path)
 
@@ -150,7 +154,6 @@ def get_next_action(model_name, workflow_name, mask_path):
 def post_process(reference_file: str, moving_segmentation: str, output_segmentation: str):
     reference_image = sitk.ReadImage(reference_file)
     moving_image = sitk.ReadImage(moving_segmentation)
-
     resampled_image = ImageResampler.reslice_identity(reference_image, moving_image, moving_segmentation,
                                                       is_label_image=True)
     sitk.WriteImage(resampled_image, output_segmentation)

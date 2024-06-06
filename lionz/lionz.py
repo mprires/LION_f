@@ -116,6 +116,15 @@ def main():
         help=model_help_text
     )
 
+    # Whether the obtained segmentations should be thresholded
+    parser.add_argument(
+        "-t", "--thresholding",
+        required=False,
+        default=False,
+        action='store_true',
+        help="Use to threshold the segmentations"
+    )
+
     # Custom help option
     parser.add_argument(
         "-h", "--help",
@@ -130,6 +139,9 @@ def main():
     # Get the main directory and model name
     parent_folder = os.path.abspath(args.main_directory)
     model_name = args.model_name
+
+    # Check for thresholding
+    thresholding = args.thresholding
 
     # Display messages
     display.logo()
@@ -199,7 +211,7 @@ def main():
         return
 
     # -------------------------------------------------
-    # RUN PREDICTION ONLY FOR MOOSE COMPLIANT SUBJECTS
+    # RUN PREDICTION ONLY FOR LION COMPLIANT SUBJECTS
     # -------------------------------------------------
 
     print('')
@@ -241,7 +253,7 @@ def main():
         logging.info(f'{constants.ANSI_VIOLET} PREDICTING IMAGES:'
                      f'{constants.ANSI_RESET}')
         logging.info(' ')
-        segmentation_file = predict_tumor(workflow_dir, model_name, output_dir, accelerator)
+        segmentation_file = predict_tumor(workflow_dir, model_name, output_dir, accelerator, thresholding)
         # Post-processing the segmentation file
         reference_modality = TRACER_WORKFLOWS[model_name]['reference_modality']
         # get the reference_modality directory from the lionz directory
@@ -272,6 +284,7 @@ def main():
                        f'calculated' \
                        f' for {os.path.basename(subject)}! '
         time.sleep(3)
+
         tumor_volume, average_intensity = image_processing.compute_tumor_metrics(new_segmentation_file,
                                                                                  reference_modality_file)
         # if tumor_volume is zero then the segmentation should have a suffix _no_tumor_seg.nii.gz

@@ -664,4 +664,25 @@ def save_metrics_to_csv(tumor_volume, avg_intensity, output_file):
         writer.writerow({'Tumor Volume (cm^3)': tumor_volume, 'Average PET Intensity (Bq/ml)': avg_intensity})
 
 
+def threshold_segmentation(pet_image_path:str, segmentation_data:np.array, intensity_threshold:int):
+    """
+    Thresholds the segmentation to only contain voxels with intensity higher than a specified value in the PET image.
+
+    Parameters:
+    pet_image_path (str): Path to the PET image NIfTI file.
+    segmentation_path (str): Path to the input predicted segmentation NIfTI file.
+    output_path (str): Path to save the thresholded segmentation NIfTI file.
+    intensity_threshold (int): The intensity threshold. Voxels with PET intensity higher than this value will be kept.
+    """
+    # Load the PET image NIfTI file
+    pet_img = nibabel.load(pet_image_path)
+    pet_data = pet_img.get_fdata()
+
+    # Apply the threshold from the PET image
+    thresholded_data = np.logical_and(segmentation_data, pet_data > intensity_threshold).astype(np.uint8)
+
+    return thresholded_data
+
+
+
 
