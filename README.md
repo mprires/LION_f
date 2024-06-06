@@ -82,13 +82,22 @@ lionz -d <path_to_image_dir> -m <model_name>
 ```
 Replace `<path_to_image_dir>` with your image directory and `<model_name>` with your chosen segmentation model's name.
 
-**Real-Life Usage Example 🌟"**
+**Real-Life Usage Example 🌟**
 
 To run LION using the 'fdg' model on a batch of images located in `/path/to/dummy/image/directory`, you'd simply execute:
 
 ```bash
 lionz -d /path/to/dummy/image/directory -m fdg
 ```
+**Thresholding Feature ✂️** 
+
+LION is also equipped with a thresholding feature to refine your segmentations. With the -t flag, you can apply thresholding of SUV 4 for FDG and SUV 1 for PSMA. 
+
+*Important:* Thresholding is only supported with DICOM or SUV NIfTI inputs! If you don't require thresholding, feel free to use any LION-compliant input format.
+
+Here's how you can apply thresholding:
+lionz -d /path/to/dummy/image/directory -m fdg -t
+
 And, if you ever find yourself needing some guidance:
 ```bash
 lionz -h
