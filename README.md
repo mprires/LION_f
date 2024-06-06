@@ -91,7 +91,7 @@ lionz -d /path/to/dummy/image/directory -m fdg
 ```
 **Thresholding Feature ✂️** 
 
-LION is also equipped with a thresholding feature to refine your segmentations. With the -t flag, you can apply thresholding of SUV 4 for FDG and SUV 1 for PSMA. 
+LION is also equipped with a thresholding feature to refine your segmentations. Adding -t to your command, applies thresholding of SUV 4 for FDG and SUV 1 for PSMA. 
 
 **Important:** Thresholding is only supported with DICOM or SUV NIfTI inputs! If you don't require thresholding, feel free to use any LION-compliant input.
 
